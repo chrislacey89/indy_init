@@ -2,8 +2,7 @@ import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 
-const SITE_URL = "https://two-hops.chrislacey89.workers.dev";
-const SITE_TITLE = "Two Hops: every Indiana founder, two hops from help";
+const SITE_URL = "https://twohops.app";
 const SITE_DESCRIPTION =
 	"Ask once with your county and what you need. A real person at the nearest listed organization introduces themselves, and the county lights up on the map.";
 
@@ -29,7 +28,8 @@ export const Route = createRootRoute({
 			{ name: "theme-color", content: "#0b2a5b" },
 			{ property: "og:type", content: "website" },
 			{ property: "og:site_name", content: "Two Hops" },
-			{ property: "og:title", content: SITE_TITLE },
+			// The share image already carries the headline; a short title keeps link previews from repeating it.
+			{ property: "og:title", content: "Two Hops" },
 			{ property: "og:description", content: SITE_DESCRIPTION },
 			{ property: "og:url", content: SITE_URL },
 			{ property: "og:image", content: `${SITE_URL}/og.png` },
@@ -41,7 +41,7 @@ export const Route = createRootRoute({
 					"Two Hops, Indiana. Every Indiana founder, two hops from help. A map of Indiana's 92 counties with reached counties in gold.",
 			},
 			{ name: "twitter:card", content: "summary_large_image" },
-			{ name: "twitter:title", content: SITE_TITLE },
+			{ name: "twitter:title", content: "Two Hops" },
 			{ name: "twitter:description", content: SITE_DESCRIPTION },
 			{ name: "twitter:image", content: `${SITE_URL}/og.png` },
 		],
