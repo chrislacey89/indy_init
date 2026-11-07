@@ -68,6 +68,8 @@ _(Ryan ticks each rung here when he accepts it.)_
 - [x] Rung 3.5 (Langfuse), accepted by Ryan 13:36.
 
 - [x] Rung 7 (follow-up), accepted by Ryan 13:59 (reported in person to Chris; his agent may add detail).
+- [x] Rung 8 (end-to-end test in CI), accepted by Ryan 14:17.
+- [x] Rung 9 (How we built it, /how), accepted by Ryan 14:17.
 
 ## Devpost: don't forget
 
