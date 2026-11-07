@@ -1,43 +1,70 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { CountyMap } from "#/components/CountyMap";
 import { INDIANA_COUNTIES } from "#/domain/counties";
-import { addIntroduction, getCountyCounts } from "#/server/introductions";
+import { HELP_TYPES } from "#/domain/help";
+import { askForHelp, getCountyStates } from "#/server/introductions";
 
 export const Route = createFileRoute("/")({
-	loader: () => getCountyCounts(),
-	component: Home,
+	loader: () => getCountyStates(),
+	component: FrontDoor,
 });
 
-const NEEDS = ["mentor", "capital", "space", "legal", "other"] as const;
+type Bubble = { from: "founder" | "two-hops"; text: string; link?: string };
 
-function Home() {
-	const counts = Route.useLoaderData();
+function FrontDoor() {
+	const states = Route.useLoaderData();
 	const router = useRouter();
-	const [status, setStatus] = useState<string>("");
+	const [thread, setThread] = useState<Bubble[]>([]);
+	const [busy, setBusy] = useState(false);
+	const [error, setError] = useState("");
 	const [lastCounty, setLastCounty] = useState<string>();
-	const total = Object.values(counts).reduce((a, b) => a + b, 0);
-	const reached = Object.values(counts).filter((n) => n > 0).length;
+
+	const made: Record<string, number> = {};
+	const pending: Record<string, number> = {};
+	for (const [county, s] of Object.entries(states)) {
+		made[county] = s.made;
+		pending[county] = s.pending;
+	}
+	const totalMade = Object.values(made).reduce((a, b) => a + b, 0);
+	const totalPending = Object.values(pending).reduce((a, b) => a + b, 0);
+	const reached = Object.values(states).filter(
+		(s) => s.made + s.pending > 0,
+	).length;
 
 	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		const formEl = e.currentTarget;
-		const form = new FormData(formEl);
+		const form = new FormData(e.currentTarget);
 		const data = {
-			founderCounty: String(form.get("founderCounty") ?? ""),
-			needType: String(form.get("needType") ?? ""),
-			fromNode: String(form.get("fromNode") ?? ""),
-			toNode: String(form.get("toNode") ?? ""),
+			county: String(form.get("county") ?? ""),
+			need: String(form.get("need") ?? ""),
+			founder: String(form.get("founder") ?? ""),
 		};
-		setStatus("Recording…");
+		setError("");
+		setBusy(true);
+		setThread((t) => [
+			...t,
+			{
+				from: "founder",
+				text: `I'm ${data.founder} in ${data.county} County. I need ${data.need.toLowerCase()}.`,
+			},
+		]);
 		try {
-			await addIntroduction({ data });
-			setLastCounty(data.founderCounty);
-			setStatus(`Recorded. ${data.founderCounty} County just moved.`);
-			formEl.reset();
+			const res = await askForHelp({ data });
+			setThread((t) => [
+				...t,
+				{
+					from: "two-hops",
+					text: res.reply,
+					link: res.org.website ?? res.org.profileUrl ?? undefined,
+				},
+			]);
+			setLastCounty(data.county);
 			await router.invalidate();
 		} catch (err) {
-			setStatus(err instanceof Error ? err.message : "Could not record it.");
+			setError(err instanceof Error ? err.message : "Something went wrong.");
+		} finally {
+			setBusy(false);
 		}
 	}
 
@@ -46,16 +73,20 @@ function Home() {
 			<header className="th-head">
 				<p className="th-kicker">Two Hops · Indiana</p>
 				<h1 className="th-title">
-					Every founder, two introductions from help.
+					Ask once. Get the nearest help, two introductions away.
 				</h1>
 				<p className="th-lede">
-					Each handshake is recorded. The map is the record: introductions made,
-					county by county.
+					Tell us your county and what you need. We find the closest listed
+					organization and ask a real person there to introduce themselves.
 				</p>
 				<div className="th-stats">
 					<div>
-						<b>{total}</b>
-						<span>introductions recorded</span>
+						<b>{totalMade}</b>
+						<span>introductions made</span>
+					</div>
+					<div>
+						<b>{totalPending}</b>
+						<span>waiting on a person</span>
 					</div>
 					<div>
 						<b>
@@ -68,49 +99,92 @@ function Home() {
 			</header>
 
 			<section className="th-grid">
-				<div className="th-map">
-					<CountyMap counts={counts} highlight={lastCounty} />
+				<div className="th-phone">
+					<div
+						className="th-thread"
+						role="log"
+						aria-label="Conversation"
+						aria-live="polite"
+					>
+						{thread.length === 0 && (
+							<p className="th-empty">
+								Your conversation shows up here, like a text thread.
+							</p>
+						)}
+						{thread.map((b, i) => (
+							<p
+								// biome-ignore lint/suspicious/noArrayIndexKey: append-only thread
+								key={i}
+								className={`th-bubble th-${b.from}`}
+							>
+								{b.text}
+								{b.link && (
+									<a href={b.link} target="_blank" rel="noopener noreferrer">
+										{" "}
+										Their page
+									</a>
+								)}
+							</p>
+						))}
+					</div>
+					<form className="th-compose" onSubmit={onSubmit}>
+						<label>
+							Your first name
+							<input name="founder" required maxLength={40} placeholder="Ana" />
+						</label>
+						<label>
+							Your county
+							<select name="county" required defaultValue="">
+								<option value="" disabled>
+									Choose a county
+								</option>
+								{INDIANA_COUNTIES.map((c) => (
+									<option key={c.fips} value={c.name}>
+										{c.name}
+									</option>
+								))}
+							</select>
+						</label>
+						<fieldset>
+							<legend>What do you need?</legend>
+							<div className="th-chips">
+								{HELP_TYPES.map((h, i) => (
+									<label key={h} className="th-chip">
+										<input
+											type="radio"
+											name="need"
+											value={h}
+											required
+											defaultChecked={i === 0}
+										/>
+										<span>{h}</span>
+									</label>
+								))}
+							</div>
+						</fieldset>
+						<button type="submit" disabled={busy}>
+							{busy ? "Finding help…" : "Send"}
+						</button>
+						{error && (
+							<p className="th-error" role="alert">
+								{error}
+							</p>
+						)}
+					</form>
 				</div>
 
-				<form className="th-form" onSubmit={onSubmit}>
-					<h2>Record an introduction</h2>
-					<label>
-						Founder's county
-						<select name="founderCounty" required defaultValue="">
-							<option value="" disabled>
-								Choose a county
-							</option>
-							{INDIANA_COUNTIES.map((c) => (
-								<option key={c.fips} value={c.name}>
-									{c.name}
-								</option>
-							))}
-						</select>
-					</label>
-					<label>
-						What they need
-						<select name="needType" required defaultValue="mentor">
-							{NEEDS.map((n) => (
-								<option key={n} value={n}>
-									{n}
-								</option>
-							))}
-						</select>
-					</label>
-					<label>
-						Introduced by
-						<input name="fromNode" required placeholder="e.g. Ana, founder" />
-					</label>
-					<label>
-						Introduced to
-						<input name="toNode" required placeholder="e.g. Elevate Ventures" />
-					</label>
-					<button type="submit">Record the handshake</button>
-					<p className="th-status" role="status" aria-live="polite">
-						{status}
+				<div className="th-map">
+					<CountyMap counts={made} pending={pending} highlight={lastCounty} />
+					<p className="th-legend">
+						<span className="th-key th-key-made" /> introduction made
+						<span className="th-key th-key-pending" /> waiting on a person
 					</p>
-				</form>
+				</div>
 			</section>
+			<p className="th-foot">
+				Data: 768 organizations from Indiana's public ConnectIND directory.{" "}
+				<Link to="/record">Record a handshake directly</Link>
+			</p>
 		</main>
 	);
 }

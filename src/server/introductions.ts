@@ -1,19 +1,65 @@
 import { env } from "cloudflare:workers";
 import { createServerFn } from "@tanstack/react-start";
 import { createD1IntroductionRepo } from "#/db/introductionRepo";
+import { isIndianaCounty } from "#/domain/counties";
+import { requestHelp } from "#/domain/frontDoor";
+import { isHelpType, replyText } from "#/domain/help";
 import {
 	countyCounts,
+	countyStates,
 	type NewIntroduction,
 	recordIntroduction,
 } from "#/domain/introductions";
+import { loadOrgs } from "#/domain/orgData";
 
 function repo() {
 	return createD1IntroductionRepo(env.DB);
 }
 
+const ORGS = loadOrgs();
+
 export const getCountyCounts = createServerFn({ method: "GET" }).handler(
 	async () => countyCounts(await repo().list()),
 );
+
+export const getCountyStates = createServerFn({ method: "GET" }).handler(
+	async () => countyStates(await repo().list()),
+);
+
+export const askForHelp = createServerFn({ method: "POST" })
+	.validator((data: { county: string; need: string; founder: string }) => {
+		const county = String(data?.county ?? "").trim();
+		const need = String(data?.need ?? "").trim();
+		const founder = String(data?.founder ?? "")
+			.trim()
+			.slice(0, 40);
+		if (!isIndianaCounty(county)) throw new Error("Pick an Indiana county.");
+		if (!isHelpType(need)) throw new Error("Pick the kind of help you need.");
+		if (!founder) throw new Error("Tell us your first name.");
+		return { county, need, founder };
+	})
+	.handler(async ({ data }) => {
+		const route = await requestHelp(repo(), ORGS, data);
+		console.log(
+			JSON.stringify({
+				event: "help_requested",
+				county: data.county,
+				need: data.need,
+				match: route.match,
+				org: route.org.id,
+			}),
+		);
+		return {
+			reply: replyText(route, data.county, data.need, data.founder),
+			match: route.match,
+			org: {
+				name: route.org.name,
+				county: route.org.county,
+				website: route.org.website ?? null,
+				profileUrl: route.org.profileUrl ?? null,
+			},
+		};
+	});
 
 export const addIntroduction = createServerFn({ method: "POST" })
 	.validator((data: NewIntroduction) => {
