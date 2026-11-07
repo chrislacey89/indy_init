@@ -53,12 +53,12 @@ _(Ryan ticks each rung here when he accepts it.)_
 
 ## Ryan: what to do next (in order)
 
-1. **Accept rung 2 (about 5 min).** Follow the rung 2 line under Ticked rungs: three requests from your phone (Marion, Allen, Vermillion). Tick it, or write the gap in one sentence.
-2. **Confirm or overrule three product calls Chris's agent made without you (about 2 min):**
+1. ~~**Accept rung 2 (about 5 min).**~~ Done 10:51. Follow the rung 2 line under Ticked rungs: three requests from your phone (Marion, Allen, Vermillion). Tick it, or write the gap in one sentence.
+2. ~~**Confirm or overrule three product calls Chris's agent made without you (about 2 min):**~~ Done 10:50: all three kept; map adds a pending dot over made fill (see DECISIONS.md).
    - (a) Front-door reply wording. It runs about three sentences now; you asked for one or two. Write the version you want, or say "shorten it."
    - (b) Map colors: blue = waiting on a person (pending), gold = introduction made.
    - (c) Ranking inside a county: orgs tagged with the requested help first, then claimed listings, then the rest.
-3. **Shape rung 3, the peak moment (about 10 min).** Answer under each question below. Rung 3 code waits on these.
+3. ~~**Shape rung 3, the peak moment (about 10 min).**~~ Done 10:50: answers in DECISIONS.md (Product rows) and the build-day thread. Answer under each question below. Rung 3 code waits on these.
    1. What does the AI-drafted intro say? Who is it from, how long is it, and does it name the founder's need?
    2. What does your approve screen show: a list of pending requests, or one at a time?
    3. What happens to a draft you edit, and one you reject?
