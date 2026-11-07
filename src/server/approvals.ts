@@ -3,7 +3,6 @@ import { createServerFn } from "@tanstack/react-start";
 import {
 	deleteCookie,
 	getCookie,
-	getRequestUrl,
 	setCookie,
 } from "@tanstack/react-start/server";
 import { createD1FollowUpRepo } from "#/db/followUpRepo";
@@ -246,7 +245,11 @@ async function emailFounder(intro: Introduction, text: string) {
 		founder,
 		orgName: org.name,
 		introText: text.trim(),
-		threadUrl: new URL(`/r/${intro.threadToken}`, getRequestUrl()).toString(),
+		// Always the public domain, whichever URL the approver happened to use.
+		threadUrl: new URL(
+			`/r/${intro.threadToken}`,
+			env.PUBLIC_URL?.trim() || "https://twohops.app",
+		).toString(),
 		fromDomain,
 	});
 	if (!email) return false;
