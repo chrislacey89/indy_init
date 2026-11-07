@@ -39,6 +39,9 @@ importers:
       drizzle-orm:
         specifier: ^0.45.4
         version: 0.45.4
+      effect:
+        specifier: 4.1.2
+        version: 4.1.2
       react:
         specifier: ^19.2.0
         version: 19.3.1
@@ -1761,6 +1764,9 @@ packages:
         optional: true
       sqlite3:
         optional: true
+
+  effect@4.1.2:
+    resolution: {integrity: sha512-d3Oah1WyKxFLFh19yWheS5IXIVaITzxZ71JkE1rkUozq/6EcJSU5nPk5bF2QrSygZ3SQoiNQB8TsxFriyMeMaQ==}
 
   electron-to-chromium@1.5.478:
     resolution: {integrity: sha512-pftG+ma5Lm8O6/p45bhYT6StBN5ziQymaRzmCZwFl8DwWHKPPD93FdOmP1aqftcepolQYvrcyTLa17kE8Yf+jg==}
@@ -3719,6 +3725,8 @@ snapshots:
       tsx: 4.23.15
 
   drizzle-orm@0.45.4: {}
+
+  effect@4.1.2: {}
 
   electron-to-chromium@1.5.478: {}
 
