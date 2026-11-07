@@ -1,6 +1,13 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Brand } from "#/components/Brand";
+import { Bubble, BubbleContent } from "#/components/ui/bubble";
+import {
+	Message,
+	MessageContent,
+	MessageFooter,
+	MessageHeader,
+} from "#/components/ui/message";
 import { getThread } from "#/server/approvals";
 
 export const Route = createFileRoute("/r/$token")({
@@ -48,38 +55,58 @@ function ThreadPage() {
 			</header>
 			<div className="th-phone">
 				<div
-					className="th-thread"
+					className="th-thread flex flex-col gap-3"
 					role="log"
 					aria-label="Conversation"
 					aria-live="polite"
 				>
-					<p className="th-bubble th-founder">
-						I'm {thread.founder} in {thread.county} County. I need{" "}
-						{thread.need.toLowerCase()}.
-					</p>
+					<Message align="end">
+						<MessageContent>
+							<Bubble align="end">
+								<BubbleContent>
+									I'm {thread.founder} in {thread.county} County. I need{" "}
+									{thread.need.toLowerCase()}.
+								</BubbleContent>
+							</Bubble>
+						</MessageContent>
+					</Message>
 					{thread.reply && (
-						<p className="th-bubble th-two-hops">{thread.reply}</p>
+						<Message>
+							<MessageContent>
+								<MessageHeader>Two Hops</MessageHeader>
+								<Bubble variant="secondary">
+									<BubbleContent>{thread.reply}</BubbleContent>
+								</Bubble>
+							</MessageContent>
+						</Message>
 					)}
-					{thread.intro ? (
-						<p className="th-bubble th-two-hops th-org">
-							<span className="th-from">{thread.org.name}</span>
-							{thread.intro}
-							{thread.org.link && (
-								<a
-									href={thread.org.link}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									{" "}
-									Their page
-								</a>
-							)}
-						</p>
-					) : null}
-					{thread.intro && thread.approver && (
-						<p className="th-hops-chain">
-							2 hops: you, {thread.org.name}, {thread.approver}
-						</p>
+					{thread.intro && (
+						<Message>
+							<MessageContent>
+								<MessageHeader>{thread.org.name}</MessageHeader>
+								<Bubble variant="outline" className="th-org">
+									<BubbleContent>
+										{thread.intro}
+										{thread.org.link && (
+											<a
+												href={thread.org.link}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="font-semibold underline"
+											>
+												{" "}
+												Their page
+											</a>
+										)}
+									</BubbleContent>
+								</Bubble>
+								{thread.approver && (
+									<MessageFooter>
+										2 hops: you, {thread.org.name}, {thread.approver}
+									</MessageFooter>
+								)}
+							</MessageContent>
+						</Message>
 					)}
 					{!thread.intro && (
 						<p className="th-waiting">

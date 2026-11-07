@@ -1,6 +1,25 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Brand } from "#/components/Brand";
+import { Alert, AlertDescription } from "#/components/ui/alert";
+import { Badge } from "#/components/ui/badge";
+import { Button } from "#/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "#/components/ui/card";
+import {
+	Field,
+	FieldDescription,
+	FieldGroup,
+	FieldLabel,
+} from "#/components/ui/field";
+import { Input } from "#/components/ui/input";
+import { Textarea } from "#/components/ui/textarea";
 import {
 	approveIntro,
 	draftIntro,
@@ -52,23 +71,30 @@ function Unlock() {
 				<h1 className="th-title">Approve introductions</h1>
 				<p className="th-lede">Enter your passcode once on this device.</p>
 			</header>
-			<form className="th-phone th-compose th-unlock" onSubmit={onSubmit}>
-				<label>
-					Passcode
-					<input
-						name="passcode"
-						type="password"
-						required
-						autoComplete="current-password"
-					/>
-				</label>
-				<button type="submit">Unlock</button>
-				{error && (
-					<p className="th-error" role="alert">
-						{error}
-					</p>
-				)}
-			</form>
+			<Card className="max-w-sm">
+				<CardContent>
+					<form onSubmit={onSubmit}>
+						<FieldGroup>
+							<Field>
+								<FieldLabel htmlFor="passcode">Passcode</FieldLabel>
+								<Input
+									id="passcode"
+									name="passcode"
+									type="password"
+									required
+									autoComplete="current-password"
+								/>
+							</Field>
+							<Button type="submit">Unlock</Button>
+							{error && (
+								<Alert variant="destructive">
+									<AlertDescription>{error}</AlertDescription>
+								</Alert>
+							)}
+						</FieldGroup>
+					</form>
+				</CardContent>
+			</Card>
 		</main>
 	);
 }
@@ -90,9 +116,14 @@ function QueueView({ items, viewer }: { items: Item[]; viewer: Viewer }) {
 					{viewer.org
 						? `Signed in as ${viewer.name} for ${viewer.org}. You see only requests routed to ${viewer.org}.`
 						: `Signed in as ${viewer.name}: every org's requests, for the demo only.`}{" "}
-					<button type="button" className="th-link" onClick={signOut}>
+					<Button
+						type="button"
+						variant="link"
+						className="h-auto p-0 text-primary"
+						onClick={signOut}
+					>
 						Sign out
-					</button>
+					</Button>
 				</p>
 				<p className="th-lede">
 					{items.length === 0
@@ -102,14 +133,14 @@ function QueueView({ items, viewer }: { items: Item[]; viewer: Viewer }) {
 			</header>
 			<div className="th-queue">
 				{items.map((item) => (
-					<Card key={item.id} item={item} viewer={viewer} />
+					<RequestCard key={item.id} item={item} viewer={viewer} />
 				))}
 			</div>
 		</main>
 	);
 }
 
-function Card({ item, viewer }: { item: Item; viewer: Viewer }) {
+function RequestCard({ item, viewer }: { item: Item; viewer: Viewer }) {
 	const router = useRouter();
 	const [draft, setDraft] = useState<Draft | null>(item.draft);
 	const [text, setText] = useState(item.draft?.text ?? "");
@@ -158,58 +189,67 @@ function Card({ item, viewer }: { item: Item; viewer: Viewer }) {
 
 	const edited = draft && text.trim() !== draft.text.trim();
 	return (
-		<article className="th-card">
-			<p className="th-banner">
-				Demo: {viewer.org ? viewer.name : "the super admin"} is approving on
-				behalf of <b>{item.org.name}</b>. Approximately half of listings do not
-				have an owner yet.
-			</p>
-			<p className="th-card-ask">
-				<b>{item.founder}</b> in {item.county} County needs{" "}
-				{item.need.toLowerCase()}.
-				<span className="th-card-meta">
-					{" "}
-					·{" "}
+		<Card>
+			<CardHeader>
+				<Alert>
+					<AlertDescription>
+						Demo: {viewer.org ? viewer.name : "the super admin"} is approving on
+						behalf of <b>{item.org.name}</b>. Approximately half of listings do
+						not have an owner yet.
+					</AlertDescription>
+				</Alert>
+				<CardTitle className="mt-2">
+					{item.founder} in {item.county} County needs {item.need.toLowerCase()}
+				</CardTitle>
+				<CardDescription>
 					{new Date(item.createdAt).toLocaleTimeString([], {
 						hour: "numeric",
 						minute: "2-digit",
 					})}
-				</span>
-			</p>
-			{item.contact && (
-				<p className="th-card-contact">
-					Reach them at: <b>{item.contact}</b>{" "}
-					<span className="th-card-meta">(only you see this)</span>
-				</p>
-			)}
-			{busy === "drafting" ? (
-				<p className="th-drafting" aria-live="polite">
-					Drafting…
-				</p>
-			) : draft ? (
-				<label className="th-draft">
-					<span className="th-card-meta">
-						Intro from {item.org.name} · drafted by {draft.model} (
-						{draft.promptVersion}){edited ? " · edited by you" : ""}
-					</span>
-					<textarea
-						value={text}
-						onChange={(e) => setText(e.target.value)}
-						rows={6}
-					/>
-				</label>
-			) : null}
-			<div className="th-actions">
-				<button
+					{item.contact && (
+						<>
+							{" "}
+							· Reach them at <b className="text-foreground">{item.contact}</b>{" "}
+							(only you see this)
+						</>
+					)}
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				{busy === "drafting" ? (
+					<p className="text-muted-foreground italic" aria-live="polite">
+						Drafting…
+					</p>
+				) : draft ? (
+					<Field>
+						<FieldLabel htmlFor={`draft-${item.id}`}>
+							Intro from {item.org.name}
+						</FieldLabel>
+						<Textarea
+							id={`draft-${item.id}`}
+							value={text}
+							onChange={(e) => setText(e.target.value)}
+							rows={6}
+						/>
+						<FieldDescription className="flex flex-wrap items-center gap-2">
+							<Badge variant="secondary">{draft.model}</Badge>
+							<Badge variant="outline">{draft.promptVersion}</Badge>
+							{edited && <Badge>edited by you</Badge>}
+						</FieldDescription>
+					</Field>
+				) : null}
+			</CardContent>
+			<CardFooter className="flex flex-wrap gap-2">
+				<Button
 					type="button"
 					onClick={approve}
 					disabled={!draft || busy !== "" || !text.trim()}
 				>
 					{busy === "approving" ? "Approving…" : "Approve and send"}
-				</button>
-				<button
+				</Button>
+				<Button
 					type="button"
-					className="th-secondary"
+					variant="outline"
 					disabled={busy !== ""}
 					onClick={() =>
 						draft
@@ -227,13 +267,13 @@ function Card({ item, viewer }: { item: Item; viewer: Viewer }) {
 					}
 				>
 					{draft ? "Reject and redraft" : "Try drafting again"}
-				</button>
-			</div>
-			{error && (
-				<p className="th-error" role="alert">
-					{error}
-				</p>
-			)}
-		</article>
+				</Button>
+				{error && (
+					<Alert variant="destructive" className="basis-full">
+						<AlertDescription>{error}</AlertDescription>
+					</Alert>
+				)}
+			</CardFooter>
+		</Card>
 	);
 }

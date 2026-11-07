@@ -14,11 +14,25 @@
 			"computedHash": "c1dc8c4e847791c62a3145894be9ec318220e76fdf0ee1a13422842f9908a48b",
 			"installMode": "copy"
 		},
+		"migrate-radix-to-base": {
+			"source": "shadcn/ui",
+			"sourceType": "github",
+			"skillPath": "skills/migrate-radix-to-base/SKILL.md",
+			"computedHash": "e1f2030ee5059be3dff0812ca0e4b995ee9fa3132176f049ebe6c90346a6755e",
+			"installMode": "copy"
+		},
 		"migrate-to-langfuse": {
 			"source": "langfuse/skills",
 			"sourceType": "github",
 			"skillPath": "skills/migrate-to-langfuse/SKILL.md",
 			"computedHash": "6c0bc44334e5d5d13afff4ae5b1c6ceb6cf153f006253c81c02524f1c584ca8b",
+			"installMode": "copy"
+		},
+		"shadcn": {
+			"source": "shadcn/ui",
+			"sourceType": "github",
+			"skillPath": "skills/shadcn/SKILL.md",
+			"computedHash": "b864a958765563321f485a96f4d59c0bb6539f4286ab6d8b8b66895b7ebd302d",
 			"installMode": "copy"
 		}
 	}

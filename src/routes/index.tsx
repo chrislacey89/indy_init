@@ -2,6 +2,20 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Brand } from "#/components/Brand";
 import { CountyMap } from "#/components/CountyMap";
+import { Alert, AlertDescription } from "#/components/ui/alert";
+import { Bubble, BubbleContent } from "#/components/ui/bubble";
+import { Button } from "#/components/ui/button";
+import {
+	Field,
+	FieldDescription,
+	FieldGroup,
+	FieldLabel,
+	FieldLegend,
+	FieldSet,
+} from "#/components/ui/field";
+import { Input } from "#/components/ui/input";
+import { Message, MessageContent } from "#/components/ui/message";
+import { ToggleGroup, ToggleGroupItem } from "#/components/ui/toggle-group";
 import { INDIANA_COUNTIES } from "#/domain/counties";
 import { HELP_TYPES } from "#/domain/help";
 import { askForHelp, getMapData } from "#/server/introductions";
@@ -67,7 +81,7 @@ export const Route = createFileRoute("/")({
 	component: FrontDoor,
 });
 
-type Bubble = {
+type ThreadItem = {
 	from: "founder" | "two-hops";
 	text: string;
 	link?: string;
@@ -100,12 +114,13 @@ function FrontDoor() {
 	const { states, distance, withinOne, handshakes } = Route.useLoaderData();
 	const [picked, setPicked] = useState<string>();
 	const router = useRouter();
-	const [thread, setThread] = useState<Bubble[]>([]);
+	const [thread, setThread] = useState<ThreadItem[]>([]);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [lastCounty, setLastCounty] = useState<string>();
 	const [saved, setSaved] = useState<SavedRequest[]>([]);
 	const human = useTurnstile();
+	const [need, setNeed] = useState<string>(HELP_TYPES[0]);
 	useEffect(() => setSaved(loadSaved()), []);
 
 	const made: Record<string, number> = {};
@@ -130,7 +145,7 @@ function FrontDoor() {
 		const form = new FormData(e.currentTarget);
 		const data = {
 			county: String(form.get("county") ?? ""),
-			need: String(form.get("need") ?? ""),
+			need,
 			founder: String(form.get("founder") ?? ""),
 			contact: String(form.get("contact") ?? ""),
 			turnstileToken: human.take(),
@@ -215,7 +230,7 @@ function FrontDoor() {
 			<section className="th-grid">
 				<div className="th-phone">
 					<div
-						className="th-thread"
+						className="th-thread flex flex-col gap-3"
 						role="log"
 						aria-label="Conversation"
 						aria-live="polite"
@@ -226,80 +241,117 @@ function FrontDoor() {
 							</p>
 						)}
 						{thread.map((b, i) => (
-							<p
+							<Message
 								// biome-ignore lint/suspicious/noArrayIndexKey: append-only thread
 								key={i}
-								className={`th-bubble th-${b.from}`}
+								align={b.from === "founder" ? "end" : "start"}
 							>
-								{b.text}
-								{b.link && (
-									<a href={b.link} target="_blank" rel="noopener noreferrer">
-										{" "}
-										Their page
-									</a>
-								)}
-								{b.thread && (
-									<Link to="/r/$token" params={{ token: b.thread }}>
-										{" "}
-										Open a conversation
-									</Link>
-								)}
-							</p>
+								<MessageContent>
+									<Bubble
+										variant={b.from === "founder" ? "default" : "secondary"}
+										align={b.from === "founder" ? "end" : "start"}
+									>
+										<BubbleContent>
+											{b.text}
+											{b.link && (
+												<a
+													href={b.link}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="font-semibold underline"
+												>
+													{" "}
+													Their page
+												</a>
+											)}
+										</BubbleContent>
+									</Bubble>
+									{b.thread && (
+										<Button asChild variant="outline" size="sm">
+											<Link to="/r/$token" params={{ token: b.thread }}>
+												Open a conversation
+											</Link>
+										</Button>
+									)}
+								</MessageContent>
+							</Message>
 						))}
 					</div>
-					<form className="th-compose" onSubmit={onSubmit}>
-						<label>
-							Your first name
-							<input name="founder" required maxLength={40} placeholder="Ana" />
-						</label>
-						<label>
-							Your county
-							<select name="county" required defaultValue="">
-								<option value="" disabled>
-									Choose a county
-								</option>
-								{INDIANA_COUNTIES.map((c) => (
-									<option key={c.fips} value={c.name}>
-										{c.name}
+					<form onSubmit={onSubmit} className="mt-4">
+						<FieldGroup>
+							<Field>
+								<FieldLabel htmlFor="founder">Your first name</FieldLabel>
+								<Input
+									id="founder"
+									name="founder"
+									required
+									maxLength={40}
+									placeholder="Ana"
+									autoComplete="given-name"
+								/>
+							</Field>
+							<Field>
+								<FieldLabel htmlFor="county">Your county</FieldLabel>
+								<select
+									id="county"
+									name="county"
+									required
+									defaultValue=""
+									className="h-10 w-full rounded-md border border-input bg-background px-3 text-base text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+								>
+									<option value="" disabled>
+										Choose a county
 									</option>
-								))}
-							</select>
-						</label>
-						<label>
-							How should they reach you? <small>(optional)</small>
-							<input
-								name="contact"
-								maxLength={120}
-								autoComplete="email"
-								placeholder="Email or phone, seen only by the org"
-							/>
-						</label>
-						<fieldset>
-							<legend>What do you need?</legend>
-							<div className="th-chips">
-								{HELP_TYPES.map((h, i) => (
-									<label key={h} className="th-chip">
-										<input
-											type="radio"
-											name="need"
-											value={h}
-											required
-											defaultChecked={i === 0}
-										/>
-										<span>{h}</span>
-									</label>
-								))}
-							</div>
-						</fieldset>
-						<div ref={human.el} className="th-turnstile" />
-						<button type="submit" disabled={busy}>
-							{busy ? "Finding help…" : "Send"}
-						</button>
-						{error && (
-							<p className="th-error" role="alert">
-								{error}
-							</p>
-						)}
+									{INDIANA_COUNTIES.map((c) => (
+										<option key={c.fips} value={c.name}>
+											{c.name}
+										</option>
+									))}
+								</select>
+							</Field>
+							<Field>
+								<FieldLabel htmlFor="contact">
+									How should they reach you?
+								</FieldLabel>
+								<Input
+									id="contact"
+									name="contact"
+									maxLength={120}
+									autoComplete="email"
+									placeholder="Email or phone"
+									aria-describedby="contact-help"
+								/>
+								<FieldDescription id="contact-help">
+									Optional. Only the organization sees it.
+								</FieldDescription>
+							</Field>
+							<FieldSet>
+								<FieldLegend>What do you need?</FieldLegend>
+								<ToggleGroup
+									type="single"
+									value={need}
+									onValueChange={(v) => v && setNeed(v)}
+									variant="outline"
+									className="flex flex-wrap justify-start gap-2"
+									aria-label="What do you need?"
+								>
+									{HELP_TYPES.map((h) => (
+										<ToggleGroupItem key={h} value={h} className="h-auto py-2">
+											{h}
+										</ToggleGroupItem>
+									))}
+								</ToggleGroup>
+							</FieldSet>
+							<div ref={human.el} className="th-turnstile" />
+							<Button type="submit" size="lg" disabled={busy}>
+								{busy ? "Finding help…" : "Send"}
+							</Button>
+							{error && (
+								<Alert variant="destructive">
+									<AlertDescription>{error}</AlertDescription>
+								</Alert>
+							)}
+						</FieldGroup>
 					</form>
 					{saved.length > 0 && (
 						<nav className="th-saved" aria-label="Your requests">

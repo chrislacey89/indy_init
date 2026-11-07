@@ -11,7 +11,8 @@
 			"!!**/dist",
 			"!**/routeTree.gen.ts",
 			"!**/worker-configuration.d.ts",
-			"!.claude"
+			"!.claude",
+			"!src/components/ui"
 		]
 	},
 	"formatter": {
