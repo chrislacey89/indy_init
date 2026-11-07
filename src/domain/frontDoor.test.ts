@@ -16,21 +16,24 @@ describe("the front door", () => {
 	it("routes a founder's request and saves it as a pending introduction to that org", async () => {
 		const repo = createInMemoryIntroductionRepo();
 
-		const reply = await requestHelp(repo, orgs, {
+		const { route: reply, intro } = await requestHelp(repo, orgs, {
 			county: "Posey",
 			need: "mentor",
 			founder: "Ana",
+			contact: " ana@example.com ",
 		});
 
+		expect(intro.threadToken).toMatch(/^[0-9a-f-]{36}$/);
 		expect(reply.org.name).toBe("Southwest Indiana SBDC");
 		expect(reply.match).toBe("adjacent-county");
-		expect(await repo.list()).toEqual([
+		expect(await repo.list()).toMatchObject([
 			{
 				founderCounty: "Posey",
 				needType: "mentor",
 				fromNode: "founder:Ana",
 				toNode: "org:vanderburgh-sbdc",
 				state: "pending",
+				contact: "ana@example.com",
 			},
 		]);
 	});

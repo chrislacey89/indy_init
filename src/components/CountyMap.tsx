@@ -29,11 +29,11 @@ const shapes = indiana.map((f) => ({
 	id: String(f.id),
 	name: f.properties.name,
 	d: path(f) ?? "",
+	centroid: path.centroid(f),
 }));
 
-function fill(count: number, max: number, pending = 0): string {
-	if (count === 0)
-		return pending > 0 ? "var(--map-pending)" : "var(--map-empty)";
+function fill(count: number, max: number): string {
+	if (count === 0) return "var(--map-empty)";
 	const t = 0.35 + 0.65 * (count / Math.max(max, 1));
 	return `color-mix(in oklab, var(--map-hot) ${Math.round(t * 100)}%, var(--map-empty))`;
 }
@@ -52,7 +52,7 @@ export function CountyMap({
 		<svg
 			viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
 			role="img"
-			aria-label="Map of Indiana's 92 counties, shaded by introductions recorded"
+			aria-label="Map of Indiana's 92 counties, gold means introductions made, blue dots mean introductions waiting on a person"
 			className="h-auto w-full max-w-[420px]"
 		>
 			{shapes.map((s) => {
@@ -61,7 +61,7 @@ export function CountyMap({
 					<path
 						key={s.id}
 						d={s.d}
-						fill={fill(n, max, pending[s.name] ?? 0)}
+						fill={fill(n, max)}
 						stroke={s.name === highlight ? "var(--map-hot)" : "var(--map-line)"}
 						strokeWidth={s.name === highlight ? 2.5 : 0.75}
 						data-county={s.name}

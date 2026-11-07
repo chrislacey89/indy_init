@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CountyMap } from "#/components/CountyMap";
 import { INDIANA_COUNTIES } from "#/domain/counties";
 import { HELP_TYPES } from "#/domain/help";
@@ -10,7 +10,34 @@ export const Route = createFileRoute("/")({
 	component: FrontDoor,
 });
 
-type Bubble = { from: "founder" | "two-hops"; text: string; link?: string };
+type Bubble = {
+	from: "founder" | "two-hops";
+	text: string;
+	link?: string;
+	thread?: string;
+};
+
+type SavedRequest = { token: string; county: string; need: string };
+const SAVED_KEY = "two-hops:requests";
+
+function loadSaved(): SavedRequest[] {
+	try {
+		return JSON.parse(localStorage.getItem(SAVED_KEY) ?? "[]");
+	} catch {
+		return [];
+	}
+}
+
+function remember(r: SavedRequest): SavedRequest[] {
+	const next = [r, ...loadSaved().filter((x) => x.token !== r.token)].slice(
+		0,
+		10,
+	);
+	try {
+		localStorage.setItem(SAVED_KEY, JSON.stringify(next));
+	} catch {}
+	return next;
+}
 
 function FrontDoor() {
 	const states = Route.useLoaderData();
@@ -19,6 +46,8 @@ function FrontDoor() {
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [lastCounty, setLastCounty] = useState<string>();
+	const [saved, setSaved] = useState<SavedRequest[]>([]);
+	useEffect(() => setSaved(loadSaved()), []);
 
 	const made: Record<string, number> = {};
 	const pending: Record<string, number> = {};
@@ -39,6 +68,7 @@ function FrontDoor() {
 			county: String(form.get("county") ?? ""),
 			need: String(form.get("need") ?? ""),
 			founder: String(form.get("founder") ?? ""),
+			contact: String(form.get("contact") ?? ""),
 		};
 		setError("");
 		setBusy(true);
@@ -58,7 +88,19 @@ function FrontDoor() {
 					text: res.reply,
 					link: res.org.website ?? res.org.profileUrl ?? undefined,
 				},
+				{
+					from: "two-hops",
+					text: "Your private link for this conversation. Their reply will show up there:",
+					thread: res.threadToken,
+				},
 			]);
+			setSaved(
+				remember({
+					token: res.threadToken,
+					county: data.county,
+					need: data.need,
+				}),
+			);
 			setLastCounty(data.county);
 			await router.invalidate();
 		} catch (err) {
@@ -124,6 +166,12 @@ function FrontDoor() {
 										Their page
 									</a>
 								)}
+								{b.thread && (
+									<Link to="/r/$token" params={{ token: b.thread }}>
+										{" "}
+										Open your conversation
+									</Link>
+								)}
 							</p>
 						))}
 					</div>
@@ -144,6 +192,15 @@ function FrontDoor() {
 									</option>
 								))}
 							</select>
+						</label>
+						<label>
+							How should they reach you? <small>(optional)</small>
+							<input
+								name="contact"
+								maxLength={120}
+								autoComplete="email"
+								placeholder="Email or phone, seen only by the org"
+							/>
 						</label>
 						<fieldset>
 							<legend>What do you need?</legend>
@@ -171,6 +228,16 @@ function FrontDoor() {
 							</p>
 						)}
 					</form>
+					{saved.length > 0 && (
+						<nav className="th-saved" aria-label="Your requests">
+							<p>Your requests on this device:</p>
+							{saved.map((r) => (
+								<Link key={r.token} to="/r/$token" params={{ token: r.token }}>
+									{r.need} · {r.county} County
+								</Link>
+							))}
+						</nav>
+					)}
 				</div>
 
 				<div className="th-map">

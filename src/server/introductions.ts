@@ -27,19 +27,30 @@ export const getCountyStates = createServerFn({ method: "GET" }).handler(
 );
 
 export const askForHelp = createServerFn({ method: "POST" })
-	.validator((data: { county: string; need: string; founder: string }) => {
-		const county = String(data?.county ?? "").trim();
-		const need = String(data?.need ?? "").trim();
-		const founder = String(data?.founder ?? "")
-			.trim()
-			.slice(0, 40);
-		if (!isIndianaCounty(county)) throw new Error("Pick an Indiana county.");
-		if (!isHelpType(need)) throw new Error("Pick the kind of help you need.");
-		if (!founder) throw new Error("Tell us your first name.");
-		return { county, need, founder };
-	})
+	.validator(
+		(data: {
+			county: string;
+			need: string;
+			founder: string;
+			contact?: string;
+		}) => {
+			const county = String(data?.county ?? "").trim();
+			const need = String(data?.need ?? "").trim();
+			const founder = String(data?.founder ?? "")
+				.trim()
+				.slice(0, 40);
+			if (!isIndianaCounty(county)) throw new Error("Pick an Indiana county.");
+			if (!isHelpType(need)) throw new Error("Pick the kind of help you need.");
+			if (!founder) throw new Error("Tell us your first name.");
+			const contact =
+				String(data?.contact ?? "")
+					.trim()
+					.slice(0, 120) || null;
+			return { county, need, founder, contact };
+		},
+	)
 	.handler(async ({ data }) => {
-		const route = await requestHelp(repo(), ORGS, data);
+		const { route, intro } = await requestHelp(repo(), ORGS, data);
 		console.log(
 			JSON.stringify({
 				event: "help_requested",
@@ -50,6 +61,7 @@ export const askForHelp = createServerFn({ method: "POST" })
 			}),
 		);
 		return {
+			threadToken: intro.threadToken,
 			reply: replyText(route, data.county, data.need, data.founder),
 			match: route.match,
 			org: {

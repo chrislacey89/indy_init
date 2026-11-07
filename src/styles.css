@@ -801,3 +801,157 @@ body:has(.th-page) {
 .th-foot a {
 	color: var(--th-gold);
 }
+
+.th-pending-dot {
+	transform-box: fill-box;
+	transform-origin: center;
+	pointer-events: none;
+	animation: th-pending-pulse 2s ease-in-out infinite;
+}
+@keyframes th-pending-pulse {
+	0%,
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+	50% {
+		transform: scale(1.35);
+		opacity: 0.6;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.th-pending-dot {
+		animation: none;
+	}
+}
+
+/* Rung 3: legend dot, saved requests, founder thread, /approve */
+.th-key-pending {
+	border-radius: 50%;
+}
+.th-saved {
+	display: grid;
+	gap: 6px;
+	margin-top: 14px;
+	font-size: 14px;
+}
+.th-saved p {
+	margin: 0;
+	color: var(--th-muted);
+}
+.th-saved a {
+	color: var(--th-gold);
+}
+.th-org {
+	background: #fff4d1;
+	border: 1px solid var(--th-gold);
+	animation: rise-in 0.5s ease-out;
+}
+.th-from {
+	display: block;
+	font-size: 12px;
+	font-weight: 700;
+	color: #7a5a00;
+	margin-bottom: 2px;
+}
+.th-typing {
+	align-self: flex-start;
+	display: flex;
+	gap: 4px;
+	margin: 0;
+	padding: 12px 14px;
+	border-radius: 16px;
+	background: #e9edf7;
+}
+.th-typing span[aria-hidden] {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #8a96b5;
+	animation: th-typing 1.2s infinite ease-in-out;
+}
+.th-typing span:nth-child(3) {
+	animation-delay: 0.15s;
+}
+.th-typing span:nth-child(4) {
+	animation-delay: 0.3s;
+}
+@keyframes th-typing {
+	0%,
+	60%,
+	100% {
+		opacity: 0.35;
+	}
+	30% {
+		opacity: 1;
+	}
+}
+.th-unlock {
+	max-width: 360px;
+}
+.th-queue {
+	display: grid;
+	gap: 16px;
+	max-width: 720px;
+}
+.th-card {
+	display: grid;
+	gap: 10px;
+	padding: 16px;
+	border: 1px solid var(--th-line);
+	border-radius: 14px;
+	background: var(--th-panel);
+	color: var(--th-ink);
+}
+.th-banner {
+	margin: 0;
+	padding: 8px 10px;
+	border-radius: 8px;
+	background: rgba(243, 194, 52, 0.14);
+	border: 1px solid rgba(243, 194, 52, 0.45);
+	font-size: 13px;
+}
+.th-card-ask,
+.th-card-contact {
+	margin: 0;
+}
+.th-card-meta {
+	color: var(--th-muted);
+	font-size: 12px;
+}
+.th-draft {
+	display: grid;
+	gap: 6px;
+}
+.th-draft textarea {
+	width: 100%;
+	font: inherit;
+	font-size: 15px;
+	line-height: 1.45;
+	padding: 10px;
+	border-radius: 10px;
+	border: 1px solid var(--th-line);
+	background: #fff;
+	color: #0a1430;
+}
+.th-drafting {
+	margin: 0;
+	color: var(--th-muted);
+	font-style: italic;
+}
+.th-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.th-secondary {
+	background: transparent !important;
+	color: var(--th-ink) !important;
+	border: 1px solid var(--th-line) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+	.th-typing span[aria-hidden],
+	.th-org {
+		animation: none;
+	}
+}

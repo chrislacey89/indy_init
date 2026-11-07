@@ -15,6 +15,13 @@
 			"when": 1794064786675,
 			"tag": "0001_introduction_state",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1794069961373,
+			"tag": "0002_approvals",
+			"breakpoints": true
 		}
 	]
 }
