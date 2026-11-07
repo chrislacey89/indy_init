@@ -58,10 +58,10 @@ _(Ryan ticks each rung here when he accepts it.)_
 - [x] Rung 2, accepted by Ryan 10:51 on the live URL.
 - [x] Rung 3, accepted by Ryan 12:31 on the live URL (Marion + Accelerators & incubators, approved as Elevate Ventures). Front door re-accept with the contact field still to come.
 
-- [ ] **Rung 4, ready for Ryan (deployed 13:14).** On the live front page: the third stat now reads "X/92 counties within one county of a recorded handshake", with a line under it: "N recorded handshakes, 2 hops each". Tap any county: it shows made, waiting, and how many counties it is from the nearest recorded handshake. Then approve one request on /approve (Elevate Ventures, Marion) and reload the front page: Marion becomes 0, its neighbors 1, and the X/92 number goes up. On that founder's conversation page, the approved intro shows "2 hops: you, Elevate Ventures, Ryan". Check the numbers by hand against the demo data.
-- [ ] **Rung 3.7 (email), live from twohops.app.** Accept after Chris's test email lands: a request with an email in the contact field, approved, arrives from "<Org> via Two Hops" with the intro and a link to the conversation.
+- [x] Rung 4, accepted by Ryan 13:36 on the live URL.
+- [x] Rung 3.7 (email), accepted by Ryan 13:36.
 
-- [ ] **Rung 3.5 (Langfuse), ready for Ryan (deployed 13:38).** Open /approve as Elevate Ventures, edit one line of a draft, and approve. Then in Langfuse (us.cloud.langfuse.com, project from Chris), open Tracing, find the newest `draft-intro` trace, and check: the prompt is the input, the AI draft is the output, a nested generation shows gpt-4.1-mini with tokens and cost, and the Scores tab shows `human_review = edited` with your corrected text as the comment. Done when you can find your own correction there.
+- [x] Rung 3.5 (Langfuse), accepted by Ryan 13:36.
 
 ## Ryan: what to do next (in order)
 
