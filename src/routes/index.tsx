@@ -319,17 +319,20 @@ function FrontDoor() {
 						pending={pending}
 						highlight={lastCounty}
 						selected={picked}
-						onSelect={setPicked}
-					/>
-					<p className="th-county-detail" aria-live="polite">
-						{picked ? (
+						onSelect={(c) => setPicked((p) => (p === c ? undefined : c))}
+						describe={(c) => (
 							<>
-								<b>{picked} County</b>: {made[picked] ?? 0} made,{" "}
-								{pending[picked] ?? 0} waiting. {distanceText(picked)}
+								<b>{c} County</b>
+								<span>
+									{made[c] ?? 0} made, {pending[c] ?? 0} waiting.
+								</span>
+								<span>{distanceText(c)}</span>
 							</>
-						) : (
-							"Tap a county to see how far it is from a recorded handshake."
 						)}
+					/>
+					<p className="th-county-detail">
+						Hover or tap a county to see how far it is from a recorded
+						handshake.
 					</p>
 					<p className="th-legend">
 						<span className="th-key th-key-made" /> introduction made

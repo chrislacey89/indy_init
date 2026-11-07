@@ -1036,3 +1036,40 @@ body:has(.th-page)::after {
 	font-size: 12px;
 	opacity: 0.75;
 }
+
+/* County tooltip: hover shows it, click/tap pins it */
+.th-map-wrap {
+	position: relative;
+	width: 100%;
+	max-width: 420px;
+}
+.th-map-tip {
+	position: absolute;
+	transform: translate(-50%, calc(-100% - 10px));
+	display: grid;
+	gap: 2px;
+	width: max-content;
+	max-width: 220px;
+	padding: 8px 10px;
+	border-radius: 10px;
+	background: #ffffff;
+	color: #0b1f4b;
+	font-size: 13px;
+	line-height: 1.35;
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+	pointer-events: none;
+	z-index: 2;
+}
+.th-map-tip b {
+	font-size: 14px;
+}
+.th-map-tip::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	bottom: -6px;
+	width: 12px;
+	height: 12px;
+	background: #ffffff;
+	transform: translateX(-50%) rotate(45deg);
+}
