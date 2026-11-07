@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ApproveRouteImport } from './routes/approve'
+import { Route as HowRouteImport } from './routes/how'
 import { Route as RecordRouteImport } from './routes/record'
 import { Route as FTokenRouteImport } from './routes/f.$token'
 import { Route as RTokenRouteImport } from './routes/r.$token'
@@ -29,6 +30,11 @@ const AboutRoute = AboutRouteImport.update({
 const ApproveRoute = ApproveRouteImport.update({
   id: '/approve',
   path: '/approve',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowRoute = HowRouteImport.update({
+  id: '/how',
+  path: '/how',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecordRoute = RecordRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/approve': typeof ApproveRoute
+  '/how': typeof HowRoute
   '/record': typeof RecordRoute
   '/f/$token': typeof FTokenRoute
   '/r/$token': typeof RTokenRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/approve': typeof ApproveRoute
+  '/how': typeof HowRoute
   '/record': typeof RecordRoute
   '/f/$token': typeof FTokenRoute
   '/r/$token': typeof RTokenRoute
@@ -68,20 +76,24 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/approve': typeof ApproveRoute
+  '/how': typeof HowRoute
   '/record': typeof RecordRoute
   '/f/$token': typeof FTokenRoute
   '/r/$token': typeof RTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/approve' | '/record' | '/f/$token' | '/r/$token'
+  fullPaths:
+    '/' | '/about' | '/approve' | '/how' | '/record' | '/f/$token' | '/r/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/approve' | '/record' | '/f/$token' | '/r/$token'
+  to:
+    '/' | '/about' | '/approve' | '/how' | '/record' | '/f/$token' | '/r/$token'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/approve'
+    | '/how'
     | '/record'
     | '/f/$token'
     | '/r/$token'
@@ -91,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ApproveRoute: typeof ApproveRoute
+  HowRoute: typeof HowRoute
   RecordRoute: typeof RecordRoute
   FTokenRoute: typeof FTokenRoute
   RTokenRoute: typeof RTokenRoute
@@ -117,6 +130,13 @@ declare module '@tanstack/react-router' {
       path: '/approve'
       fullPath: '/approve'
       preLoaderRoute: typeof ApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how': {
+      id: '/how'
+      path: '/how'
+      fullPath: '/how'
+      preLoaderRoute: typeof HowRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/record': {
@@ -147,6 +167,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ApproveRoute: ApproveRoute,
+  HowRoute: HowRoute,
   RecordRoute: RecordRoute,
   FTokenRoute: FTokenRoute,
   RTokenRoute: RTokenRoute,
