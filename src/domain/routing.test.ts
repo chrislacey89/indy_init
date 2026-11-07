@@ -27,6 +27,23 @@ describe("routing a founder to the nearest listed organization", () => {
 		});
 	});
 
+	it("prefers an organization tagged with the founder's kind of help, without dropping untagged ones", () => {
+		const allen: Org[] = [
+			{ id: "untagged", name: "Allen Chamber", county: "Allen" },
+			{
+				id: "tagged",
+				name: "Northeast Indiana Fund",
+				county: "Allen",
+				supportTypes: ["Funding"],
+			},
+		];
+
+		expect(routeFounder("Allen", allen, "Funding")?.org.id).toBe("tagged");
+		expect(routeFounder("Allen", allen, "Space to work")?.org.id).toBe(
+			"untagged",
+		);
+	});
+
 	it("falls back to a listing with no county when nothing is in or next to the founder's county", () => {
 		// Posey is in the far southwest; no listing is in it or a neighbor.
 		const route = routeFounder("Posey", orgs);

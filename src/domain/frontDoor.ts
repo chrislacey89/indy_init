@@ -9,7 +9,7 @@ export async function requestHelp(
 	orgs: Org[],
 	req: HelpRequest,
 ): Promise<Route> {
-	const route = routeFounder(req.county, orgs);
+	const route = routeFounder(req.county, orgs, req.need);
 	if (!route)
 		throw new Error(`No listed organization can take ${req.county} yet`);
 	await recordIntroduction(repo, {
