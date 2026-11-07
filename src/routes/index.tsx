@@ -392,8 +392,7 @@ function FrontDoor() {
 						)}
 					/>
 					<p className="th-county-detail">
-						Hover or tap a county to see how far it is from a recorded
-						handshake.
+						Select a county to see how far it is from a recorded handshake.
 					</p>
 					<p className="th-legend">
 						<span className="th-key th-key-made" /> introduction made

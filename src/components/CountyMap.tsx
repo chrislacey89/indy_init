@@ -1,6 +1,6 @@
 import { geoMercator, geoPath } from "d3-geo";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
-import { type ReactNode, useState } from "react";
+import type { ReactNode } from "react";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import countiesAtlas from "us-atlas/counties-10m.json";
@@ -53,11 +53,11 @@ export function CountyMap({
 	selected?: string;
 	/** Tapping a county selects it (rung 4: how far it is from a recorded handshake). */
 	onSelect?: (county: string) => void;
-	/** Tooltip content for a county, shown on hover and pinned on click or tap. */
+	/** Tooltip content for the selected county. */
 	describe?: (county: string) => ReactNode;
 }) {
-	const [hovered, setHovered] = useState<string>();
-	const shown = hovered ?? selected;
+	// The tooltip follows the selected county only (click, tap, or Enter); hovering doesn't open it.
+	const shown = selected;
 	const anchor = shown ? shapes.find((s) => s.name === shown) : undefined;
 	const max = Math.max(0, ...Object.values(counts));
 	return (
@@ -87,10 +87,6 @@ export function CountyMap({
 							aria-pressed={s.name === selected}
 							className={onSelect ? "th-county" : undefined}
 							onClick={() => onSelect?.(s.name)}
-							onMouseEnter={() => setHovered(s.name)}
-							onMouseLeave={() => setHovered(undefined)}
-							onFocus={() => setHovered(s.name)}
-							onBlur={() => setHovered(undefined)}
 							onKeyDown={(e) => {
 								if (e.key === "Enter" || e.key === " ") {
 									e.preventDefault();
