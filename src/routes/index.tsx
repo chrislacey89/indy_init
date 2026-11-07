@@ -336,14 +336,23 @@ function FrontDoor() {
 									aria-label="What do you need?"
 								>
 									{HELP_TYPES.map((h) => (
-										<ToggleGroupItem key={h} value={h} className="h-auto py-2">
+										<ToggleGroupItem
+											key={h}
+											value={h}
+											className="h-auto py-2 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:font-semibold data-[state=on]:text-primary-foreground"
+										>
 											{h}
 										</ToggleGroupItem>
 									))}
 								</ToggleGroup>
 							</FieldSet>
 							<div ref={human.el} className="th-turnstile" />
-							<Button type="submit" size="lg" disabled={busy}>
+							<Button
+								type="submit"
+								size="lg"
+								className="text-base font-semibold"
+								disabled={busy}
+							>
 								{busy ? "Finding help…" : "Send"}
 							</Button>
 							{error && (
