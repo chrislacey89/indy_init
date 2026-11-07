@@ -1,7 +1,7 @@
 import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai";
 import { type Duration, Effect, Layer, Redacted, Schema } from "effect";
-import { LanguageModel } from "effect/ai";
-import { FetchHttpClient } from "effect/http";
+import { LanguageModel, Telemetry } from "effect/ai";
+import { FetchHttpClient, HttpClient } from "effect/http";
 import { OtlpSerialization, OtlpTracer } from "effect/observability";
 import { type LangfuseConfig, langfuseOtlp } from "./langfuse";
 
@@ -75,6 +75,24 @@ const tracedDraft = (prompt: string, ctx: DraftTraceContext) =>
 		return { text, traceId: span.traceId };
 	}).pipe(Effect.withSpan("draft-intro"));
 
+/**
+ * Give the generation span its own input (the prompt messages) and output (the model's text),
+ * so evaluators and the trace tree can read them, not just the root span.
+ */
+const generationIo: Telemetry.SpanTransformer = ({
+	prompt,
+	response,
+	span,
+}) => {
+	span.attribute("langfuse.observation.input", JSON.stringify(prompt.content));
+	span.attribute(
+		"langfuse.observation.output",
+		response
+			.flatMap((part) => (part.type === "text" ? [part.text] : []))
+			.join(""),
+	);
+};
+
 function openAiLayer(apiKey: string) {
 	return OpenAiLanguageModel.layer({ model: DRAFT_MODEL }).pipe(
 		Layer.provide(OpenAiClient.layer({ apiKey: Redacted.make(apiKey) })),
@@ -114,6 +132,9 @@ export async function draftWithOpenAi(
 	}
 	return Effect.runPromise(
 		tracedDraft(prompt, ctx).pipe(
+			Effect.provideService(Telemetry.CurrentSpanTransformer, generationIo),
+			// HTTP client spans are noise in an LLM trace; the generation already carries timing.
+			Effect.provideService(HttpClient.TracerDisabledWhen, () => true),
 			Effect.provide(Layer.merge(base, tracingLayer(langfuse))),
 			Effect.provide(FetchHttpClient.layer),
 		),
