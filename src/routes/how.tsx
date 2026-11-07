@@ -44,6 +44,53 @@ const CHECKPOINTS = [
 	{ t: at(13, 59), note: "29 min/rung: add 8 and 9" },
 ];
 
+/** Trimmed from the Langfuse API for the sample trace (values verbatim; internal ids dropped). */
+const TRACE_PROMPT = `You are writing on behalf of Elevate Ventures, an Indiana entrepreneur-support organization in Marion County.
+A founder named Riley in Marion County asked for help with: accelerators & incubators.
+Write a warm introduction from Elevate Ventures to Riley, 3-4 sentences, plain and friendly like a text from a real person.
+Address Riley by first name, name what they asked for, say briefly how Elevate Ventures can help, and end with one concrete next step (for example, a short call or a visit).
+Do not invent specific people, phone numbers, emails, dates, prices, or programs. No subject line, no signature block, no emoji. Return only the message text.`;
+const TRACE_DRAFT =
+	"Hi Riley, thanks for reaching out about accelerators and incubators in Marion County. At Elevate Ventures, we connect founders like you with local programs and resources to help your business grow and succeed. I’d love to set up a quick call to learn more about your startup and share some options that might be a good fit. Let me know a time that works for you!";
+const TRACE_JSON = {
+	traceId: "a47f654f0d4fab35008602af5a36e47b",
+	observations: [
+		{
+			type: "SPAN",
+			name: "draft-intro",
+			id: "4db74d0e546e4ce4",
+			isRootObservation: true,
+			userId: "ryan",
+			startTime: "2026-11-07T18:19:12.111Z",
+			endTime: "2026-11-07T18:19:13.579Z",
+			latency: 1.468,
+			input:
+				"You are writing on behalf of Elevate Ventures, … A founder named Riley in Marion County asked for help with: accelerators & incubators. …",
+			output:
+				"Hi Riley, thanks for reaching out about accelerators and incubators in Marion County. …",
+		},
+		{
+			type: "GENERATION",
+			name: "LanguageModel.generateText",
+			id: "91c8b1c3f57313c8",
+			parentObservationId: "4db74d0e546e4ce4",
+			model: "gpt-4.1-mini-2025-04-14",
+			usageDetails: { input: 146, output: 77, total: 223 },
+			costDetails: { input: 0.0000584, output: 0.0001232, total: 0.0001816 },
+			latency: 1.468,
+		},
+	],
+	scores: [
+		{
+			name: "human_review",
+			source: "API",
+			dataType: "CATEGORICAL",
+			value: "approved_as_is",
+			timestamp: "2026-11-07T18:19:21.840Z",
+		},
+	],
+};
+
 function Ext({ href, children }: { href: string; children: ReactNode }) {
 	return (
 		<a
@@ -338,12 +385,101 @@ function HowWeBuiltIt() {
 				</Tile>
 			</section>
 
+			{/* Under the hood: one real Langfuse trace */}
+			<section aria-labelledby="hood-title" className="grid gap-5">
+				<div>
+					<p className="th-kicker">06 · Under the hood</p>
+					<h2
+						id="hood-title"
+						className="m-0 text-[26px] font-extrabold tracking-tight"
+					>
+						One real draft, as Langfuse saw it.
+					</h2>
+					<p className="mt-2 mb-0 max-w-[68ch] text-[15px] leading-relaxed text-[var(--th-muted)]">
+						A founder named Riley (test data) asked for an accelerator in Marion
+						County at 1:19 PM. The draft took 1.5 seconds and cost under two
+						hundredths of a cent. Ryan approved it as written 8 seconds later,
+						and that approval was written back to the trace as a score.
+					</p>
+				</div>
+				<div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+					<div className="grid content-start gap-3">
+						<ol className="m-0 grid list-none gap-2 p-0">
+							{[
+								{
+									kind: "SPAN",
+									name: "draft-intro",
+									meta: "root · 1.468 s · user ryan",
+									indent: false,
+								},
+								{
+									kind: "GENERATION",
+									name: "gpt-4.1-mini",
+									meta: "146 in · 77 out · $0.00018",
+									indent: true,
+								},
+								{
+									kind: "SCORE",
+									name: "human_review",
+									meta: "approved_as_is · +8 s",
+									indent: false,
+								},
+							].map((n) => (
+								<li
+									key={n.kind}
+									className={`flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-[var(--th-line-dark)] bg-[var(--th-bg-deep)] px-4 py-3 ${n.indent ? "ml-6" : ""}`}
+								>
+									<span
+										className={`shrink-0 whitespace-nowrap rounded-md px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider ${n.kind === "SCORE" ? "bg-[var(--th-gold)] text-[var(--th-ink-dark)]" : "border border-[var(--th-gold)] text-[var(--th-gold)]"}`}
+									>
+										{n.kind}
+									</span>
+									<span className="whitespace-nowrap font-mono text-[13px] font-bold text-[var(--th-ink)]">
+										{n.name}
+									</span>
+									<span className="w-full font-mono text-[11px] text-[var(--th-muted)] sm:ml-auto sm:w-auto sm:text-right">
+										{n.meta}
+									</span>
+								</li>
+							))}
+						</ol>
+						<details className="group rounded-xl border border-[var(--th-line-dark)] bg-[var(--th-bg-deep)] px-4 py-3">
+							<summary className="cursor-pointer text-[14px] font-bold text-[var(--th-ink)]">
+								The prompt (note the guardrails in the last line)
+							</summary>
+							<p className="mt-3 mb-0 whitespace-pre-line text-[13px] leading-relaxed text-[var(--th-muted)]">
+								{TRACE_PROMPT}
+							</p>
+						</details>
+						<div className="rounded-xl border-l-[3px] border-[var(--th-gold)] bg-[var(--th-bg-deep)] px-4 py-3">
+							<p className="th-kicker mb-2">The draft Ryan approved</p>
+							<p className="m-0 text-[14px] leading-relaxed text-[var(--th-ink)]">
+								{TRACE_DRAFT}
+							</p>
+						</div>
+					</div>
+					<div className="min-w-0 overflow-hidden rounded-xl border border-[var(--th-line-dark)] bg-[#050f24]">
+						<div className="flex items-center justify-between border-b border-[var(--th-line-dark)] px-4 py-2">
+							<span className="font-mono text-[11px] text-[var(--th-muted)]">
+								GET /api/public/observations?traceId=a47f…6e47b
+							</span>
+							<span className="font-mono text-[11px] text-[var(--th-gold)]">
+								200
+							</span>
+						</div>
+						<pre className="m-0 max-h-[460px] overflow-auto whitespace-pre-wrap break-words bg-transparent! p-4 font-mono text-[12px] leading-[1.55] text-[var(--th-muted)]">
+							{JSON.stringify(TRACE_JSON, null, 2)}
+						</pre>
+					</div>
+				</div>
+			</section>
+
 			{/* Where the AI needed correcting */}
 			<section
 				aria-labelledby="fix-title"
 				className="rounded-2xl border-2 border-[var(--th-gold)] p-6 sm:p-8"
 			>
-				<p className="th-kicker">06 · Honest about the AI</p>
+				<p className="th-kicker">07 · Honest about the AI</p>
 				<h2
 					id="fix-title"
 					className="m-0 mb-4 text-[26px] font-extrabold tracking-tight"
