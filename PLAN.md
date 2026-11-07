@@ -42,6 +42,13 @@ A rung is done when Ryan accepts it on the live URL against its done-condition.
 **Cut order:** 6, then 5, then 3.5 (Langfuse), then map geometry to a 92-cell grid, then AI need classification to a dropdown, then outcome states to pending/made.
 **Never cut:** the record, the map, the approve tap, the live deploy.
 
+## Demo: how we built it (capture for the recap)
+
+- **Two humans, two agents, one shared thread.** Chris's build agent and Ryan's product agent coordinate through a Kody Exchange thread: questions, answers, rung acceptance and pushback. Ryan's agent keeps a clone of the repo and checks each rung against its done-condition; only Ryan's own "accepted" counts.
+- **Decisions before code.** Every product call is confirmed by Chris or Ryan (in the thread or the build brief) before it's built, and logged in DECISIONS.md tagged product or technical.
+- **Where the AI needed correcting:** it built product calls without asking (fixed with the product/technical rule); it added rung 2 before rung 1 was accepted; it said Effect couldn't reach Gemini natively (wrong; Chris pushed back and the compat route turned up); the Gemini key was out of credits (switched to OpenAI after a 1-minute spike).
+- **At the freeze:** export the Kody thread to `docs/alignment-log.md` so judges can read the actual back-and-forth.
+
 ## Ticked rungs
 
 _(Ryan ticks each rung here when he accepts it.)_
