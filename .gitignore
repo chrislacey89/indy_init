@@ -15,3 +15,10 @@ todos.json
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+.claude/.tdd-active
+.claude/.tdd-skipped
+.claude/.lfg-active
+.claude/.ralph-checked
+.claude/.review-stamped
+.claude/.fix-findings-active

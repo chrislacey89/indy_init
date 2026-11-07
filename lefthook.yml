@@ -1,0 +1,18 @@
+pre-commit:
+  parallel: true
+  commands:
+    format-and-lint:
+      glob: "*.{js,ts,jsx,tsx,json,css}"
+      run: pnpm exec biome check --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+    typecheck:
+      run: pnpm run typecheck
+    test:
+      run: pnpm run test
+    secret-scan:
+      run: gitleaks git --pre-commit --staged --redact
+
+pre-push:
+  commands:
+    dependency-audit:
+      run: pnpm audit

@@ -11,7 +11,12 @@
 		"build": "vite build",
 		"preview": "pnpm run build && vite preview",
 		"deploy": "pnpm run build && wrangler deploy",
-		"cf-typegen": "wrangler types"
+		"cf-typegen": "wrangler types",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run --passWithNoTests",
+		"lint": "biome check .",
+		"prepare": "lefthook install",
+		"preinstall": "npx only-allow pnpm"
 	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.18",
@@ -24,6 +29,7 @@
 		"tailwindcss": "^4.1.18"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "^2.6.6",
 		"@cloudflare/vite-plugin": "^1.26.0",
 		"@tailwindcss/typography": "^0.5.16",
 		"@tanstack/devtools-vite": "0.8.6",
@@ -32,8 +38,10 @@
 		"@types/react": "^19.2.0",
 		"@types/react-dom": "^19.2.0",
 		"@vitejs/plugin-react": "^6.0.1",
+		"lefthook": "^2.2.2",
 		"typescript": "^6.0.2",
 		"vite": "^8.0.0",
+		"vitest": "^5.1.0",
 		"wrangler": "^4.158.0"
 	},
 	"pnpm": {
@@ -43,5 +51,6 @@
 			"sharp",
 			"workerd"
 		]
-	}
+	},
+	"packageManager": "pnpm@10.32.1"
 }
