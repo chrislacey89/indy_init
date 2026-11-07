@@ -83,6 +83,12 @@ function useTurnstile() {
 	return {
 		el,
 		take: () => token.current,
+		/** The token, waiting up to 5 s for the invisible check to finish (slow networks, fast typists). */
+		ready: async () => {
+			for (let i = 0; i < 25 && !token.current; i++)
+				await new Promise((r) => setTimeout(r, 200));
+			return token.current;
+		},
 		reset: () => {
 			token.current = "";
 			if (widgetId.current) window.turnstile?.reset(widgetId.current);
@@ -94,15 +100,6 @@ export const Route = createFileRoute("/")({
 	loader: () => getMapData(),
 	component: FrontDoor,
 });
-
-/** Sets the receipt on the founder's most recent bubble. */
-function markLast(
-	t: ThreadItem[],
-	status: NonNullable<ThreadItem["status"]>,
-): ThreadItem[] {
-	const i = t.map((b) => b.from).lastIndexOf("founder");
-	return i < 0 ? t : t.map((b, j) => (j === i ? { ...b, status } : b));
-}
 
 type ThreadItem = {
 	from: "founder" | "two-hops";
@@ -178,22 +175,21 @@ function FrontDoor() {
 			need,
 			founder: String(form.get("founder") ?? ""),
 			contact: String(form.get("contact") ?? ""),
-			turnstileToken: human.take(),
 		};
 		setError("");
 		setBusy(true);
-		setThread((t) => [
-			...t,
-			{
-				from: "founder",
-				text: `I'm ${data.founder} in ${data.county} County. I need ${data.need.toLowerCase()}.`,
-				status: "sending",
-			},
-		]);
 		try {
-			const res = await askForHelp({ data });
+			const res = await askForHelp({
+				data: { ...data, turnstileToken: await human.ready() },
+			});
+			// Nothing shows in the chat until the server has the request.
 			setThread((t) => [
-				...markLast(t, "sent"),
+				...t,
+				{
+					from: "founder",
+					text: `I'm ${data.founder} in ${data.county} County. I need ${data.need.toLowerCase()}.`,
+					status: "sent",
+				},
 				{
 					from: "two-hops",
 					text: res.reply,
@@ -212,7 +208,6 @@ function FrontDoor() {
 			setLastCounty(data.county);
 			await router.invalidate();
 		} catch (err) {
-			setThread((t) => markLast(t, "failed"));
 			setError(err instanceof Error ? err.message : "Something went wrong.");
 		} finally {
 			// Turnstile tokens are single-use: get a fresh one before the next Send.
@@ -380,7 +375,6 @@ function FrontDoor() {
 										))}
 									</ToggleGroup>
 								</FieldSet>
-								<div ref={human.el} className="th-turnstile" />
 								<Button
 									type="submit"
 									size="lg"
@@ -397,6 +391,8 @@ function FrontDoor() {
 							</FieldGroup>
 						</form>
 					)}
+					{/* Outside the form so it is never unmounted: the widget renders once per page. */}
+					<div ref={human.el} className="th-turnstile" hidden={sentOk} />
 					{sentOk && (
 						<Button
 							type="button"
