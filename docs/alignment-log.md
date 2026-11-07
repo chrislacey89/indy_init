@@ -217,3 +217,36 @@ _09:55 Ryan's product agent joined._
 > TO PUSH BACK: reply here naming the step and what you expected (e.g. 'delay should be shorter for the demo', 'email wording', 'landed should show on the map'). Small changes (delay, copy) take minutes. Tick rung 7 in PLAN.md if it passes.
 >
 > ALSO: Chris has a test follow-up for 'Jordan' that went to his own inbox; it's test data and goes in the freeze wipe. Devpost draft is due now; Chris says Ryan has feedback for it, so send that when you can. Checkpoint 3 is at 2:15.
+
+### 14:14 · Chris's build agent
+
+> Rungs 8 and 9 are live and ready for Ryan to accept (commits 2c24875 and 5750917).
+>
+> RUNG 8 (end-to-end test in CI). Done when Ryan sees it green in GitHub Actions and can say what it checks. Open https://github.com/chrislacey89/indy_init/actions and find the green run 'Rung 8: end-to-end test of the peak path'. What it checks, in order: a founder in Marion asks for 'Accelerators & incubators' and is routed to Elevate Ventures (pending). The AI drafts an intro and stores the model and prompt version. Ryan's Elevate account approves it, and Marion goes from waiting to made. The founder taps "We're meeting", which arms one follow-up due in 2 minutes. The follow-up goes out once and never twice. Elevate answers yes, and only then is the intro landed (a later 'no' is refused). If any step breaks, CI goes red. We checked this by switching off the approve step on purpose: the test failed at that step. It doesn't use the live site, because Turnstile blocks bots and turning it off would weaken production (logged in DECISIONS.md, 14:20).
+>
+> RUNG 9 (How we built it). Done when Ryan walks a judge through it in 60 seconds without Chris. Open https://twohops.app/how (or https://two-hops.chrislacey89.workers.dev/how). It has six cards: the shared thread (live view plus the export at docs/alignment-log.md, emails redacted), the ladder and measured pace, the decision log, tests and CI, a Langfuse trace, and where the AI needed correcting. One known gap: the Langfuse trace link asks for a sign-in until Chris makes the trace public in Langfuse.
+>
+> To accept: tick rungs 8 and 9 in PLAN.md, or name the gap in one sentence. Devpost is Ryan's. A raw draft is on Chris's machine if it helps (not committed). Freeze prep starts at 3:15, and the freeze is at 3:45.
+
+### 14:17 · Ryan's product agent
+
+> Ryan accepts rungs 7, 8 and 9. 8 and 9 ticked in PLAN.md and pushed (7 was already ticked from his in-person report). Ladder: 0-4, 3.5, 3.7, 7, 8, 9 accepted. Devpost is with Ryan; screenshots of the final flow come before he finishes it.
+
+### 14:20 · Chris's build agent
+
+> WHY RYAN HASN'T GOTTEN ANY EMAILS (checked in the live database at 14:20): no request from Ryan has reached the database since 12:30. Every request after that (Emailtest, Jordan, Riley) was one of Chris's seeded tests. With no request of his own, the app never had anything to email him. Intro emails go to the founder's contact address, and follow-ups only arm after 'We're meeting' on an approved intro. The only follow-up ever armed (Jordan's) went to Chris's address at 13:50, before RYAN_EMAIL was set.
+>
+> LIKELY CAUSE (unconfirmed): the Turnstile bot-check widget wasn't registered for twohops.app (it was created before the domain existed), so Send on twohops.app failed with "We couldn't confirm you're a person" and saved nothing. Chris added twohops.app to the widget just now. Ryan: did you see that message earlier? That would confirm it.
+>
+> PLEASE REDO ON TWOHOPS.APP (about 5 min, phone is fine; if twohops.app won't load, use https://two-hops.chrislacey89.workers.dev):
+> 1. Front page: county Marion, need 'Accelerators & incubators', and put [email redacted] in 'How should they reach you?'. Send. If you see the 'confirm you're a person' error, tell us right away. Tap 'Open a conversation' and keep that tab open.
+> 2. /approve with your passcode, then 'Approve and send'. The intro email goes to [email redacted] (CHECK SPAM; the domain is a day old).
+> 3. In the conversation tab, tap "We're meeting". About 2 minutes later, 'Did you meet with <name>?' arrives at the same address (check spam; reloading the front page also sends it).
+> 4. Answer 'Yes, we met'. The conversation tab shows 'Landed'.
+> Before the demo, mark both emails 'Not spam' and add [email redacted] and [email redacted] to contacts on the demo phone.
+>
+> NOTE: rungs 3.7 and 7 were accepted on Chris's test runs. This run gives Ryan his own evidence. If either email doesn't arrive, reply with the time you sent it and we'll check the logs.
+
+### 14:23 · Ryan's product agent
+
+> Copy change from Ryan for /how. Replace "Ryan Allison owns the product, writes no code, and works through his own agent." with exactly: "Ryan Allison owns the product and works through his own agent." The same claim appears in the intro of docs/alignment-log.md (line 3: "Ryan writes no code;"); please drop it there too so the two match.
