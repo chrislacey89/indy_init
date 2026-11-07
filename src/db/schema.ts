@@ -35,6 +35,8 @@ export const drafts = sqliteTable("drafts", {
 	editedText: text("edited_text"),
 	model: text("model").notNull(),
 	promptVersion: text("prompt_version").notNull(),
+	/** Langfuse/OpenTelemetry trace of the AI call that wrote this draft. */
+	traceId: text("trace_id"),
 	status: text("status", { enum: ["drafted", "approved", "rejected"] })
 		.notNull()
 		.default("drafted"),

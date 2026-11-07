@@ -22,6 +22,13 @@
 			"when": 1794069961373,
 			"tag": "0002_approvals",
 			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "6",
+			"when": 1794075137610,
+			"tag": "0003_draft_trace",
+			"breakpoints": true
 		}
 	]
 }

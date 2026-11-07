@@ -16,7 +16,9 @@
 		// Frontend hostnames whose Turnstile tokens the front door accepts. Never localhost in production.
 		"TURNSTILE_HOSTNAMES": "two-hops.chrislacey89.workers.dev",
 		// Onboarded email-sending domain. Empty = emailing approved intros is off.
-		"EMAIL_FROM_DOMAIN": "twohops.app"
+		"EMAIL_FROM_DOMAIN": "twohops.app",
+		// Langfuse region. Tracing is on only when the two LANGFUSE_* key secrets are also set.
+		"LANGFUSE_BASE_URL": "https://us.cloud.langfuse.com"
 	},
 	"send_email": [{ "name": "EMAIL" }],
 	"ratelimits": [

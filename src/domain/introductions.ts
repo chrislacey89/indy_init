@@ -36,6 +36,7 @@ export type Draft = {
 	editedText: string | null;
 	model: string;
 	promptVersion: string;
+	traceId: string | null;
 	status: DraftStatus;
 	approvedBy: string | null;
 	createdAt: Date;
@@ -45,7 +46,7 @@ export type Draft = {
 export type NewDraft = Pick<
 	Draft,
 	"introId" | "aiText" | "model" | "promptVersion"
->;
+> & { traceId?: string | null };
 
 export type Approval = {
 	introId: number;
@@ -101,6 +102,7 @@ export function createInMemoryIntroductionRepo(): IntroductionRepo {
 		async addDraft(d) {
 			const draft: Draft = {
 				...d,
+				traceId: d.traceId ?? null,
 				id: drafts.length + 1,
 				editedText: null,
 				status: "drafted",

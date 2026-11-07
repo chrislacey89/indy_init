@@ -22,6 +22,7 @@ import { introPrompt, PROMPT_VERSION } from "#/domain/introPrompt";
 import { loadOrgs } from "#/domain/orgData";
 import { routeFounder } from "#/domain/routing";
 import { DRAFT_MODEL, draftWithOpenAi } from "./aiDraft";
+import { langfuseFrom, scoreDraft } from "./langfuse";
 
 const ORGS = loadOrgs();
 const ORG_BY_ID = new Map(ORGS.map((o) => [o.id, o]));
@@ -180,7 +181,9 @@ export const getApproveQueue = createServerFn({ method: "GET" }).handler(
 	},
 );
 
-async function draftFor(introId: number) {
+const langfuse = () => langfuseFrom(env);
+
+async function draftFor(introId: number, account: Account) {
 	const r = repo();
 	const intro = await r.getById(introId);
 	if (!intro || intro.state !== "pending")
@@ -189,7 +192,7 @@ async function draftFor(introId: number) {
 	if (existing) return existing;
 	const { founder, org } = describe(intro);
 	const started = Date.now();
-	const aiText = await draftWithOpenAi(
+	const { text: aiText, traceId } = await draftWithOpenAi(
 		introPrompt({
 			founder,
 			need: intro.needType,
@@ -198,18 +201,29 @@ async function draftFor(introId: number) {
 			orgCounty: org.county,
 		}),
 		env.OPENAI_API_KEY,
+		{
+			introId,
+			org: org.name,
+			county: intro.founderCounty,
+			need: intro.needType,
+			promptVersion: PROMPT_VERSION,
+			approverAccount: account.id,
+		},
+		langfuse(),
 	);
 	const draft = await saveDraft(r, {
 		introId,
 		aiText,
 		model: DRAFT_MODEL,
 		promptVersion: PROMPT_VERSION,
+		traceId,
 	});
 	log("draft_created", {
 		intro: introId,
 		draft: draft.id,
 		model: DRAFT_MODEL,
 		prompt_version: PROMPT_VERSION,
+		trace: traceId,
 		ms: Date.now() - started,
 	});
 	return draft;
@@ -232,8 +246,9 @@ const idInput = (data: { introId: number }) => {
 export const draftIntro = createServerFn({ method: "POST" })
 	.validator(idInput)
 	.handler(async ({ data }) => {
-		await requireHandles(await requireAccount(), data.introId);
-		return toClient(await draftFor(data.introId));
+		const account = await requireAccount();
+		await requireHandles(account, data.introId);
+		return toClient(await draftFor(data.introId, account));
 	});
 
 export const redraftIntro = createServerFn({ method: "POST" })
@@ -242,10 +257,19 @@ export const redraftIntro = createServerFn({ method: "POST" })
 		draftId: Number(data?.draftId),
 	}))
 	.handler(async ({ data }) => {
-		await requireHandles(await requireAccount(), data.introId);
+		const account = await requireAccount();
+		await requireHandles(account, data.introId);
+		const rejected = (await repo().listDrafts(data.introId)).find(
+			(d) => d.id === data.draftId,
+		);
 		await rejectDraft(repo(), data);
+		await scoreDraft(langfuse(), {
+			traceId: rejected?.traceId ?? null,
+			value: "rejected",
+			reviewer: account.name,
+		});
 		log("draft_rejected", { intro: data.introId, draft: data.draftId });
-		return toClient(await draftFor(data.introId));
+		return toClient(await draftFor(data.introId, account));
 	});
 
 /**
@@ -293,6 +317,15 @@ export const approveIntro = createServerFn({ method: "POST" })
 			finalText: data.text,
 			approver: account.name,
 		});
+		const approved = (await repo().listDrafts(data.introId)).find(
+			(d) => d.id === data.draftId,
+		);
+		const scored = await scoreDraft(langfuse(), {
+			traceId: approved?.traceId ?? null,
+			value: approved?.editedText ? "edited" : "approved_as_is",
+			correction: approved?.editedText ?? undefined,
+			reviewer: account.name,
+		});
 		const intro = await repo().getById(data.introId);
 		const emailed = intro ? await emailFounder(intro, data.text) : false;
 		log("intro_approved", {
@@ -302,6 +335,7 @@ export const approveIntro = createServerFn({ method: "POST" })
 			county: intro?.founderCounty,
 			state: intro?.state,
 			emailed,
+			scored,
 		});
 		return {
 			ok: true as const,
