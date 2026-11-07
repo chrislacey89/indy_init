@@ -14,8 +14,11 @@
 	"upload_source_maps": true,
 	"vars": {
 		// Frontend hostnames whose Turnstile tokens the front door accepts. Never localhost in production.
-		"TURNSTILE_HOSTNAMES": "two-hops.chrislacey89.workers.dev"
+		"TURNSTILE_HOSTNAMES": "two-hops.chrislacey89.workers.dev",
+		// Onboarded email-sending domain. Empty = emailing approved intros is off.
+		"EMAIL_FROM_DOMAIN": ""
 	},
+	"send_email": [{ "name": "EMAIL" }],
 	"ratelimits": [
 		{
 			// Per-IP cap on front-door requests. Generous, since a whole venue can share one IP.

@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import {
 	deleteCookie,
 	getCookie,
+	getRequestUrl,
 	setCookie,
 } from "@tanstack/react-start/server";
 import { createD1IntroductionRepo } from "#/db/introductionRepo";
@@ -16,6 +17,7 @@ import {
 	rejectDraft,
 	saveDraft,
 } from "#/domain/introductions";
+import { introEmail } from "#/domain/introEmail";
 import { introPrompt, PROMPT_VERSION } from "#/domain/introPrompt";
 import { loadOrgs } from "#/domain/orgData";
 import { routeFounder } from "#/domain/routing";
@@ -246,6 +248,36 @@ export const redraftIntro = createServerFn({ method: "POST" })
 		return toClient(await draftFor(data.introId));
 	});
 
+/**
+ * After approval, email the intro to the founder if they left an email address.
+ * Off until EMAIL_FROM_DOMAIN is set (an onboarded sending domain). A failed send never undoes the approval.
+ */
+async function emailFounder(intro: Introduction, text: string) {
+	const fromDomain = env.EMAIL_FROM_DOMAIN?.trim();
+	if (!fromDomain) return false;
+	const { founder, org } = describe(intro);
+	const email = introEmail({
+		contact: intro.contact,
+		founder,
+		orgName: org.name,
+		introText: text.trim(),
+		threadUrl: new URL(`/r/${intro.threadToken}`, getRequestUrl()).toString(),
+		fromDomain,
+	});
+	if (!email) return false;
+	try {
+		const result = await env.EMAIL.send(email);
+		log("intro_emailed", { intro: intro.id, message: result.messageId });
+		return true;
+	} catch (err) {
+		log("intro_email_failed", {
+			intro: intro.id,
+			code: (err as { code?: string }).code ?? "unknown",
+		});
+		return false;
+	}
+}
+
 export const approveIntro = createServerFn({ method: "POST" })
 	.validator((data: { introId: number; draftId: number; text: string }) => ({
 		...idInput(data),
@@ -262,14 +294,20 @@ export const approveIntro = createServerFn({ method: "POST" })
 			approver: account.name,
 		});
 		const intro = await repo().getById(data.introId);
+		const emailed = intro ? await emailFounder(intro, data.text) : false;
 		log("intro_approved", {
 			intro: data.introId,
 			account: account.id,
 			draft: data.draftId,
 			county: intro?.founderCounty,
 			state: intro?.state,
+			emailed,
 		});
-		return { ok: true as const, county: intro?.founderCounty ?? null };
+		return {
+			ok: true as const,
+			county: intro?.founderCounty ?? null,
+			emailed,
+		};
 	});
 
 /** The founder's private thread: their ask, Two Hops' reply, and the org's intro once approved. */
