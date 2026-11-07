@@ -12,9 +12,11 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	// Serve the app at the apex of the domain we bought (Cloudflare creates the DNS record and certificate).
+	"routes": [{ "pattern": "twohops.app", "custom_domain": true }],
 	"vars": {
 		// Frontend hostnames whose Turnstile tokens the front door accepts. Never localhost in production.
-		"TURNSTILE_HOSTNAMES": "two-hops.chrislacey89.workers.dev",
+		"TURNSTILE_HOSTNAMES": "twohops.app,two-hops.chrislacey89.workers.dev",
 		// Onboarded email-sending domain. Empty = emailing approved intros is off.
 		"EMAIL_FROM_DOMAIN": "twohops.app",
 		// Langfuse region. Tracing is on only when the two LANGFUSE_* key secrets are also set.
