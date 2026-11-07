@@ -91,6 +91,48 @@ const TRACE_JSON = {
 	],
 };
 
+/** Colors pretty-printed JSON: keys gold, strings pale blue, numbers green, booleans coral. No library. */
+function highlightJson(text: string): ReactNode[] {
+	const out: ReactNode[] = [];
+	const re =
+		/("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g;
+	let last = 0;
+	for (const m of text.matchAll(re)) {
+		const i = m.index ?? 0;
+		if (i > last) out.push(text.slice(last, i));
+		const [tok, str, colon, lit] = m;
+		if (str && colon) {
+			out.push(
+				<span key={i} className="text-[var(--th-gold)]">
+					{str}
+				</span>,
+				colon,
+			);
+		} else if (str) {
+			out.push(
+				<span key={i} className="text-[#a8c8ff]">
+					{str}
+				</span>,
+			);
+		} else if (lit) {
+			out.push(
+				<span key={i} className="text-[#ffb4a8]">
+					{tok}
+				</span>,
+			);
+		} else {
+			out.push(
+				<span key={i} className="text-[#8ee6c4]">
+					{tok}
+				</span>,
+			);
+		}
+		last = i + tok.length;
+	}
+	if (last < text.length) out.push(text.slice(last));
+	return out;
+}
+
 function Ext({ href, children }: { href: string; children: ReactNode }) {
 	return (
 		<a
@@ -464,7 +506,7 @@ function HowWeBuiltIt() {
 							</span>
 						</div>
 						<pre className="m-0 max-h-[460px] overflow-auto whitespace-pre-wrap break-words bg-transparent! p-4 font-mono text-[12px] leading-[1.55] text-[var(--th-muted)]">
-							{JSON.stringify(TRACE_JSON, null, 2)}
+							{highlightJson(JSON.stringify(TRACE_JSON, null, 2))}
 						</pre>
 					</div>
 				</div>
