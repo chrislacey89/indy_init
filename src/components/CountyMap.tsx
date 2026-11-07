@@ -70,6 +70,28 @@ export function CountyMap({
 					</path>
 				);
 			})}
+			{shapes.map((s) => {
+				const [x, y] = s.centroid;
+				if (
+					!(pending[s.name] > 0) ||
+					!Number.isFinite(x) ||
+					!Number.isFinite(y)
+				)
+					return null;
+				return (
+					<circle
+						key={`dot-${s.id}`}
+						cx={x}
+						cy={y}
+						r={5}
+						className="th-pending-dot"
+						fill="var(--map-pending)"
+						stroke="var(--th-bg)"
+						strokeWidth={1.5}
+						pointerEvents="none"
+					/>
+				);
+			})}
 		</svg>
 	);
 }
