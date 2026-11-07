@@ -10,13 +10,13 @@ Stack: TanStack Start, TypeScript, Drizzle, Cloudflare Workers + D1.
 
 ## Clock
 
-Planned on a 9:00 start (the guide says 9:00, the website says 9:30; confirmed at the welcome).
+The build actually started at 9:25 ("the build starts now" at the welcome). Times below are from that start.
 
 | Mark                     | Time                     |
 | ------------------------ | ------------------------ |
-| Start                    | 9:00                     |
+| Start                    | 9:25                     |
 | Kickoff block ends       | 9:20                     |
-| Checkpoints              | 10:50, 12:20, 1:50, 3:20 |
+| Checkpoints              | 11:15 (held 11:30), 12:45, 2:15 |
 | Freeze (no new features) | 3:45                     |
 | Submit by                | 4:45                     |
 | Submissions close        | 5:00                     |
@@ -70,7 +70,7 @@ _(Ryan ticks each rung here when he accepts it.)_
    3. What happens to a draft you edit, and one you reject?
    4. What counts as "landed" for rung 4, and who marks it?
    5. How does the screen say you're standing in for the org?
-4. **At 11:15, call checkpoint 1 out loud.** Chris re-plans the rest of the ladder from measured pace.
+4. ~~**At 11:15, call checkpoint 1 out loud.**~~ Held 11:30: about 12 minutes per rung, so we add rungs. Next checkpoints: 12:45 and 2:15. When rung 3 ships, re-accept the front door too (it gains the optional contact field).
 5. **Later, before 4:45:** create the Devpost project with both teammates (table 25).
 
 ## Open questions for Ryan (shape in parallel; needed before rung 2)
