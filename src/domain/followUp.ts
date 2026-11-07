@@ -127,3 +127,12 @@ export async function answerFollowUp(
 export function isLanded(f: Pick<FollowUp, "answer">): boolean {
 	return f.answer === "yes";
 }
+
+/** Where an approved intro stands, in the approver's words. */
+export function followUpStatus(f: FollowUp | null): string {
+	if (!f) return "Sent. Waiting for the founder to say yes to a meeting";
+	if (f.answer === "yes") return "Landed: you met";
+	if (f.answer === "no") return "Not met yet";
+	if (f.sentAt) return "Follow-up emailed. Waiting on your answer";
+	return "Meeting agreed. Follow-up scheduled";
+}

@@ -143,6 +143,10 @@ function FrontDoor() {
 	const router = useRouter();
 	const [thread, setThread] = useState<ThreadItem[]>([]);
 	const showThread = thread.length > 0;
+	// After a successful Send the card is just the chat; the form returns only on "Ask for something else".
+	const sentOk = thread.some(
+		(b) => b.from === "founder" && b.status === "sent",
+	);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [lastCounty, setLastCounty] = useState<string>();
@@ -296,98 +300,113 @@ function FrontDoor() {
 							))}
 						</div>
 					)}
-					<form onSubmit={onSubmit} className={showThread ? "mt-4" : undefined}>
-						<FieldGroup>
-							<Field>
-								<FieldLabel htmlFor="founder">Your first name</FieldLabel>
-								<Input
-									id="founder"
-									name="founder"
-									required
-									maxLength={40}
-									placeholder="Ana"
-									autoComplete="given-name"
-								/>
-							</Field>
-							<Field>
-								<FieldLabel htmlFor="county">Your county</FieldLabel>
-								<Combobox
-									items={COUNTY_NAMES}
-									name="county"
-									required
-									autoHighlight
-								>
-									<ComboboxInput
-										id="county"
-										placeholder="Start typing a county"
+					{!sentOk && (
+						<form
+							onSubmit={onSubmit}
+							className={showThread ? "mt-4" : undefined}
+						>
+							<FieldGroup>
+								<Field>
+									<FieldLabel htmlFor="founder">Your first name</FieldLabel>
+									<Input
+										id="founder"
+										name="founder"
+										required
+										maxLength={40}
+										placeholder="Ana"
+										autoComplete="given-name"
 									/>
-									<ComboboxContent>
-										<ComboboxEmpty>
-											No Indiana county by that name.
-										</ComboboxEmpty>
-										<ComboboxList>
-											{(name: string) => (
-												<ComboboxItem key={name} value={name}>
-													{name}
-												</ComboboxItem>
-											)}
-										</ComboboxList>
-									</ComboboxContent>
-								</Combobox>
-							</Field>
-							<Field>
-								<FieldLabel htmlFor="contact">Your email</FieldLabel>
-								<Input
-									id="contact"
-									name="contact"
-									type="email"
-									maxLength={120}
-									autoComplete="email"
-									placeholder="you@example.com"
-									aria-describedby="contact-help"
-								/>
-								<FieldDescription id="contact-help">
-									Optional. Only the organization sees it, and your introduction
-									is emailed here.
-								</FieldDescription>
-							</Field>
-							<FieldSet>
-								<FieldLegend>What do you need?</FieldLegend>
-								<ToggleGroup
-									type="single"
-									value={need}
-									onValueChange={(v) => v && setNeed(v)}
-									variant="outline"
-									className="flex flex-wrap justify-start gap-2"
-									aria-label="What do you need?"
+								</Field>
+								<Field>
+									<FieldLabel htmlFor="county">Your county</FieldLabel>
+									<Combobox
+										items={COUNTY_NAMES}
+										name="county"
+										required
+										autoHighlight
+									>
+										<ComboboxInput
+											id="county"
+											placeholder="Start typing a county"
+										/>
+										<ComboboxContent>
+											<ComboboxEmpty>
+												No Indiana county by that name.
+											</ComboboxEmpty>
+											<ComboboxList>
+												{(name: string) => (
+													<ComboboxItem key={name} value={name}>
+														{name}
+													</ComboboxItem>
+												)}
+											</ComboboxList>
+										</ComboboxContent>
+									</Combobox>
+								</Field>
+								<Field>
+									<FieldLabel htmlFor="contact">Your email</FieldLabel>
+									<Input
+										id="contact"
+										name="contact"
+										type="email"
+										maxLength={120}
+										autoComplete="email"
+										placeholder="you@example.com"
+										aria-describedby="contact-help"
+									/>
+									<FieldDescription id="contact-help">
+										Optional. Only the organization sees it, and your
+										introduction is emailed here.
+									</FieldDescription>
+								</Field>
+								<FieldSet>
+									<FieldLegend>What do you need?</FieldLegend>
+									<ToggleGroup
+										type="single"
+										value={need}
+										onValueChange={(v) => v && setNeed(v)}
+										variant="outline"
+										className="flex flex-wrap justify-start gap-2"
+										aria-label="What do you need?"
+									>
+										{HELP_TYPES.map((h) => (
+											<ToggleGroupItem
+												key={h}
+												value={h}
+												className="h-auto py-2 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:font-semibold data-[state=on]:text-primary-foreground"
+											>
+												{h}
+											</ToggleGroupItem>
+										))}
+									</ToggleGroup>
+								</FieldSet>
+								<div ref={human.el} className="th-turnstile" />
+								<Button
+									type="submit"
+									size="lg"
+									className="text-base font-semibold"
+									disabled={busy}
 								>
-									{HELP_TYPES.map((h) => (
-										<ToggleGroupItem
-											key={h}
-											value={h}
-											className="h-auto py-2 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:font-semibold data-[state=on]:text-primary-foreground"
-										>
-											{h}
-										</ToggleGroupItem>
-									))}
-								</ToggleGroup>
-							</FieldSet>
-							<div ref={human.el} className="th-turnstile" />
-							<Button
-								type="submit"
-								size="lg"
-								className="text-base font-semibold"
-								disabled={busy}
-							>
-								{busy ? "Finding help…" : "Send"}
-							</Button>
-							{error && (
-								<Alert variant="destructive">
-									<AlertDescription>{error}</AlertDescription>
-								</Alert>
-							)}
-						</FieldGroup>
-					</form>
+									{busy ? "Finding help…" : "Send"}
+								</Button>
+								{error && (
+									<Alert variant="destructive">
+										<AlertDescription>{error}</AlertDescription>
+									</Alert>
+								)}
+							</FieldGroup>
+						</form>
+					)}
+					{sentOk && (
+						<Button
+							type="button"
+							variant="link"
+							className="justify-self-start px-0"
+							onClick={() => setThread([])}
+						>
+							Ask for something else
+						</Button>
+					)}
 					{saved.length > 0 && (
 						<nav className="th-saved" aria-label="Your requests">
 							<p>Your requests on this device:</p>

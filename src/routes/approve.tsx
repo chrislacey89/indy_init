@@ -38,6 +38,7 @@ type Queue = Awaited<ReturnType<typeof getApproveQueue>>;
 type Item = Queue["items"][number];
 type Draft = NonNullable<Item["draft"]>;
 type Viewer = NonNullable<Queue["viewer"]>;
+type Sent = Queue["sent"][number];
 
 function ApprovePage() {
 	const queue = Route.useLoaderData();
@@ -45,6 +46,7 @@ function ApprovePage() {
 	return (
 		<QueueView
 			items={queue.items}
+			sent={queue.sent}
 			viewer={queue.viewer ?? { name: "", org: null }}
 		/>
 	);
@@ -99,7 +101,15 @@ function Unlock() {
 	);
 }
 
-function QueueView({ items, viewer }: { items: Item[]; viewer: Viewer }) {
+function QueueView({
+	items,
+	sent,
+	viewer,
+}: {
+	items: Item[];
+	sent: Sent[];
+	viewer: Viewer;
+}) {
 	const router = useRouter();
 	async function signOut() {
 		await signOutApprove();
@@ -127,7 +137,7 @@ function QueueView({ items, viewer }: { items: Item[]; viewer: Viewer }) {
 				</p>
 				<p className="th-lede">
 					{items.length === 0
-						? "Nothing is waiting. New requests show up here, newest first."
+						? `Nothing is waiting. New requests show up here, newest first.${sent.length ? " What you've already sent is below." : ""}`
 						: `${items.length} request${items.length === 1 ? "" : "s"}, newest first. The AI drafts; you decide what is sent.`}
 				</p>
 			</header>
@@ -136,6 +146,48 @@ function QueueView({ items, viewer }: { items: Item[]; viewer: Viewer }) {
 					<RequestCard key={item.id} item={item} viewer={viewer} />
 				))}
 			</div>
+			{sent.length > 0 && (
+				<section aria-labelledby="sent-title" className="grid gap-3">
+					<h2
+						id="sent-title"
+						className="m-0 text-[22px] font-extrabold tracking-tight text-[var(--th-ink)]"
+					>
+						Sent ({sent.length})
+					</h2>
+					<ul className="m-0 grid list-none gap-2 p-0">
+						{sent.map((s) => (
+							<li key={s.id}>
+								<Card size="sm">
+									<CardHeader>
+										<CardTitle>
+											{s.founder} · {s.county} County
+										</CardTitle>
+										<CardDescription>
+											{s.need}
+											{viewer.org ? "" : ` · ${s.org.name}`}
+											{s.approvedAt
+												? ` · approved ${new Date(s.approvedAt).toLocaleString([], { hour: "numeric", minute: "2-digit", month: "short", day: "numeric" })}${s.approvedBy ? ` by ${s.approvedBy}` : ""}`
+												: ""}
+										</CardDescription>
+										<div className="flex flex-wrap gap-2 pt-1">
+											<Badge
+												variant={
+													s.status.startsWith("Landed")
+														? "default"
+														: "secondary"
+												}
+											>
+												{s.status}
+											</Badge>
+											{s.edited && <Badge variant="outline">edited</Badge>}
+										</div>
+									</CardHeader>
+								</Card>
+							</li>
+						))}
+					</ul>
+				</section>
+			)}
 		</main>
 	);
 }

@@ -8,6 +8,7 @@ import {
 import { createD1FollowUpRepo } from "#/db/followUpRepo";
 import { createD1IntroductionRepo } from "#/db/introductionRepo";
 import { canHandle } from "#/domain/access";
+import { followUpStatus } from "#/domain/followUp";
 import { replyText } from "#/domain/help";
 import {
 	approvedText,
@@ -111,7 +112,8 @@ export const signOutApprove = createServerFn({ method: "POST" }).handler(
 export const getApproveQueue = createServerFn({ method: "GET" }).handler(
 	async () => {
 		const account = await currentAccount();
-		if (!account) return { unlocked: false as const, viewer: null, items: [] };
+		if (!account)
+			return { unlocked: false as const, viewer: null, items: [], sent: [] };
 		const r = repo();
 		const pending = (await r.listPending()).filter((i) =>
 			canHandle(account.scope, i),
@@ -137,7 +139,32 @@ export const getApproveQueue = createServerFn({ method: "GET" }).handler(
 				};
 			}),
 		);
-		return { unlocked: true as const, viewer: viewerOf(account), items };
+		// Already approved for this account, newest first, so the page is never just empty.
+		const followUps = createD1FollowUpRepo(env.DB);
+		const made = (await r.list())
+			.filter((i) => i.state !== "pending" && canHandle(account.scope, i))
+			.slice(-50);
+		const sent = (
+			await Promise.all(
+				made.map(async (intro) => {
+					const drafts = await r.listDrafts(intro.id);
+					const approved = drafts
+						.filter((d) => d.status === "approved")
+						.sort((a, b) => b.id - a.id)[0];
+					return {
+						id: intro.id,
+						county: intro.founderCounty,
+						need: intro.needType,
+						...describe(intro),
+						approvedAt: approved?.approvedAt?.toISOString() ?? null,
+						approvedBy: approved?.approvedBy ?? null,
+						edited: !!approved?.editedText,
+						status: followUpStatus(await followUps.byIntro(intro.id)),
+					};
+				}),
+			)
+		).sort((a, b) => (b.approvedAt ?? "").localeCompare(a.approvedAt ?? ""));
+		return { unlocked: true as const, viewer: viewerOf(account), items, sent };
 	},
 );
 
