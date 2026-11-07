@@ -321,6 +321,10 @@ export const getThread = createServerFn({ method: "GET" })
 		if (!intro) return null;
 		const { founder, org } = describe(intro);
 		const route = routeFounder(intro.founderCounty, ORGS, intro.needType);
+		const drafts = await r.listDrafts(intro.id);
+		const approved = drafts
+			.filter((d) => d.status === "approved")
+			.sort((a, b) => b.id - a.id)[0];
 		return {
 			founder,
 			county: intro.founderCounty,
@@ -330,6 +334,13 @@ export const getThread = createServerFn({ method: "GET" })
 				: null,
 			org,
 			state: intro.state,
-			intro: approvedText(await r.listDrafts(intro.id)),
+			intro: approvedText(drafts),
+			// The person at the org who approved it; the demo super admin stays anonymous.
+			approver:
+				approved?.approvedBy && approved.approvedBy !== "Demo super admin"
+					? approved.approvedBy
+					: approved
+						? "a person there"
+						: null,
 		};
 	});

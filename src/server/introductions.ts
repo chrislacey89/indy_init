@@ -11,6 +11,7 @@ import {
 	recordIntroduction,
 } from "#/domain/introductions";
 import { loadOrgs } from "#/domain/orgData";
+import { countiesFromHelp, withinOne } from "#/domain/reach";
 import { guardFrontDoor } from "./frontDoorGuard";
 
 function repo() {
@@ -25,6 +26,23 @@ export const getCountyCounts = createServerFn({ method: "GET" }).handler(
 
 export const getCountyStates = createServerFn({ method: "GET" }).handler(
 	async () => countyStates(await repo().list()),
+);
+
+/** The map's data plus Ryan's rung 4 numbers, all from the record of introductions alone. */
+export const getMapData = createServerFn({ method: "GET" }).handler(
+	async () => {
+		const intros = await repo().list();
+		const made = intros
+			.filter((i) => i.state === "made")
+			.map((i) => i.founderCounty);
+		const distance = countiesFromHelp(made);
+		return {
+			states: countyStates(intros),
+			distance,
+			withinOne: withinOne(distance),
+			handshakes: made.length,
+		};
+	},
 );
 
 export const askForHelp = createServerFn({ method: "POST" })

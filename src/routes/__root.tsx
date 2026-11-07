@@ -2,6 +2,11 @@ import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 
+const SITE_URL = "https://two-hops.chrislacey89.workers.dev";
+const SITE_TITLE = "Two Hops: every Indiana founder, two hops from help";
+const SITE_DESCRIPTION =
+	"Ask once with your county and what you need. A real person at the nearest listed organization introduces themselves, and the county lights up on the map.";
+
 const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`;
 
 export const Route = createRootRoute({
@@ -17,12 +22,36 @@ export const Route = createRootRoute({
 			{
 				title: "Two Hops",
 			},
+			{
+				name: "description",
+				content: SITE_DESCRIPTION,
+			},
+			{ name: "theme-color", content: "#0b2a5b" },
+			{ property: "og:type", content: "website" },
+			{ property: "og:site_name", content: "Two Hops" },
+			{ property: "og:title", content: SITE_TITLE },
+			{ property: "og:description", content: SITE_DESCRIPTION },
+			{ property: "og:url", content: SITE_URL },
+			{ property: "og:image", content: `${SITE_URL}/og.png` },
+			{ property: "og:image:width", content: "1200" },
+			{ property: "og:image:height", content: "630" },
+			{
+				property: "og:image:alt",
+				content:
+					"Two Hops, Indiana. Every Indiana founder, two hops from help. A map of Indiana's 92 counties with reached counties in gold.",
+			},
+			{ name: "twitter:card", content: "summary_large_image" },
+			{ name: "twitter:title", content: SITE_TITLE },
+			{ name: "twitter:description", content: SITE_DESCRIPTION },
+			{ name: "twitter:image", content: `${SITE_URL}/og.png` },
 		],
 		links: [
 			{
 				rel: "stylesheet",
 				href: appCss,
 			},
+			{ rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+			{ rel: "apple-touch-icon", href: "/mark.svg" },
 		],
 	}),
 	shellComponent: RootDocument,

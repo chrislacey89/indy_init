@@ -75,7 +75,13 @@ function ThreadPage() {
 								</a>
 							)}
 						</p>
-					) : (
+					) : null}
+					{thread.intro && thread.approver && (
+						<p className="th-hops-chain">
+							2 hops: you, {thread.org.name}, {thread.approver}
+						</p>
+					)}
+					{!thread.intro && (
 						<p className="th-waiting">
 							Waiting for a reply from {thread.org.name}. A person there reads
 							your request before anything is sent.

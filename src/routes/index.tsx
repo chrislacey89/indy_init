@@ -4,7 +4,7 @@ import { Brand } from "#/components/Brand";
 import { CountyMap } from "#/components/CountyMap";
 import { INDIANA_COUNTIES } from "#/domain/counties";
 import { HELP_TYPES } from "#/domain/help";
-import { askForHelp, getCountyStates } from "#/server/introductions";
+import { askForHelp, getMapData } from "#/server/introductions";
 import { TURNSTILE_ACTION, TURNSTILE_SITEKEY } from "#/turnstile";
 
 type TurnstileApi = {
@@ -63,7 +63,7 @@ function useTurnstile() {
 }
 
 export const Route = createFileRoute("/")({
-	loader: () => getCountyStates(),
+	loader: () => getMapData(),
 	component: FrontDoor,
 });
 
@@ -97,7 +97,8 @@ function remember(r: SavedRequest): SavedRequest[] {
 }
 
 function FrontDoor() {
-	const states = Route.useLoaderData();
+	const { states, distance, withinOne, handshakes } = Route.useLoaderData();
+	const [picked, setPicked] = useState<string>();
 	const router = useRouter();
 	const [thread, setThread] = useState<Bubble[]>([]);
 	const [busy, setBusy] = useState(false);
@@ -115,9 +116,14 @@ function FrontDoor() {
 	}
 	const totalMade = Object.values(made).reduce((a, b) => a + b, 0);
 	const totalPending = Object.values(pending).reduce((a, b) => a + b, 0);
-	const reached = Object.values(states).filter(
-		(s) => s.made + s.pending > 0,
-	).length;
+
+	function distanceText(county: string): string {
+		const d = distance[county];
+		if (d === null || d === undefined)
+			return "No introduction has been made in Indiana yet.";
+		if (d === 0) return "A handshake has been recorded right here.";
+		return `${d} ${d === 1 ? "county" : "counties"} from the nearest recorded handshake.`;
+	}
 
 	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -193,12 +199,17 @@ function FrontDoor() {
 					</div>
 					<div>
 						<b>
-							{reached}
+							{withinOne}
 							<small>/92</small>
 						</b>
-						<span>counties reached</span>
+						<span>counties within one county of a recorded handshake</span>
 					</div>
 				</div>
+				<p className="th-hops-line">
+					{handshakes === 0
+						? "Every introduction is 2 hops: you, an organization, a person there."
+						: `${handshakes} recorded ${handshakes === 1 ? "handshake" : "handshakes"}, 2 hops each: you, an organization, a person there.`}
+				</p>
 			</header>
 
 			<section className="th-grid">
@@ -303,7 +314,23 @@ function FrontDoor() {
 				</div>
 
 				<div className="th-map">
-					<CountyMap counts={made} pending={pending} highlight={lastCounty} />
+					<CountyMap
+						counts={made}
+						pending={pending}
+						highlight={lastCounty}
+						selected={picked}
+						onSelect={setPicked}
+					/>
+					<p className="th-county-detail" aria-live="polite">
+						{picked ? (
+							<>
+								<b>{picked} County</b>: {made[picked] ?? 0} made,{" "}
+								{pending[picked] ?? 0} waiting. {distanceText(picked)}
+							</>
+						) : (
+							"Tap a county to see how far it is from a recorded handshake."
+						)}
+					</p>
 					<p className="th-legend">
 						<span className="th-key th-key-made" /> introduction made
 						<span className="th-key th-key-pending" /> waiting on a person

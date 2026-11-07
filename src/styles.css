@@ -1010,3 +1010,29 @@ body:has(.th-page)::after {
 	width: 44px;
 	height: 44px;
 }
+
+/* Rung 4: the number */
+.th-hops-line {
+	margin: 10px 0 0;
+	font-size: 14px;
+	opacity: 0.85;
+}
+.th-county-detail {
+	margin: 8px 0 0;
+	font-size: 14px;
+	min-height: 2.6em;
+}
+.th-county {
+	cursor: pointer;
+	outline: none;
+}
+.th-county:focus-visible {
+	stroke: var(--map-hot);
+	stroke-width: 3;
+}
+.th-hops-chain {
+	align-self: flex-start;
+	margin: 2px 0 0;
+	font-size: 12px;
+	opacity: 0.75;
+}
