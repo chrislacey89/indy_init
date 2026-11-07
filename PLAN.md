@@ -45,6 +45,8 @@ A rung is done when Ryan accepts it on the live URL against its done-condition.
 _(Ryan ticks each rung here when he accepts it.)_
 
 - [x] Rung 0, accepted by Ryan 10:15 on the live URL.
+- [ ] **Rung 1: ready for acceptance (built 09:37).** On your phone, open https://two-hops.chrislacey89.workers.dev/record (the form moved here when rung 2 took over the home page). Record one introduction: pick a county, fill in "Introduced by" and "Introduced to", tap "Record the handshake". Then on a laptop, open the same /record page and refresh: that county should be gold and the counts should go up by one. Also check the map is readable at phone width. Tick this, or write the gap in one sentence.
+- [ ] **Rung 2: ready for acceptance (built 10:23).** On your phone, open https://two-hops.chrislacey89.workers.dev/ (the home page). Send three requests: one in Marion, one in Allen, and one in Vermillion (no organization listed). Each reply should name an organization and read like a text from a person. Vermillion should say the help is next door. After each send, that county turns blue on the map (waiting on a person). Tick this, or write the gap in one sentence, including if the reply wording is too long.
 
 ## Open questions for Ryan (shape in parallel; needed before rung 2)
 
