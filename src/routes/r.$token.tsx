@@ -20,7 +20,10 @@ export const Route = createFileRoute("/r/$token")({
 function ThreadPage() {
 	const thread = Route.useLoaderData();
 	const router = useRouter();
-	const waiting = thread?.state === "pending";
+	// Keep checking while a reply or a follow-up answer is still outstanding.
+	const waiting =
+		thread?.state === "pending" ||
+		(!!thread?.followUp && !thread.followUp.answer);
 	const { token } = Route.useParams();
 	const [arming, setArming] = useState(false);
 	async function meeting() {

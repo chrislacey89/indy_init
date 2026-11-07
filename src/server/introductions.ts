@@ -14,6 +14,7 @@ import {
 } from "#/domain/introductions";
 import { loadOrgs } from "#/domain/orgData";
 import { countiesFromHelp, withinOne } from "#/domain/reach";
+import { sendDueFollowUps } from "./followUpCron";
 import { guardFrontDoor } from "./frontDoorGuard";
 
 function repo() {
@@ -33,6 +34,8 @@ export const getCountyStates = createServerFn({ method: "GET" }).handler(
 /** The map's data plus Ryan's rung 4 numbers, all from the record of introductions alone. */
 export const getMapData = createServerFn({ method: "GET" }).handler(
 	async () => {
+		// Backup for the cron: any page load also sends follow-ups that have come due.
+		await sendDueFollowUps().catch(() => 0);
 		const intros = await repo().list();
 		const made = intros
 			.filter((i) => i.state === "made")

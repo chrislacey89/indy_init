@@ -24,6 +24,7 @@ import { loadOrgs } from "#/domain/orgData";
 import { routeFounder } from "#/domain/routing";
 import { ACCOUNTS, type Account, describe, orgName } from "./accounts";
 import { DRAFT_MODEL, draftWithOpenAi } from "./aiDraft";
+import { sendDueFollowUps } from "./followUpCron";
 import { langfuseFrom, scoreDraft } from "./langfuse";
 
 const ORGS = loadOrgs();
@@ -310,6 +311,8 @@ export const getThread = createServerFn({ method: "GET" })
 		token: String(data?.token ?? "").slice(0, 64),
 	}))
 	.handler(async ({ data }) => {
+		// Backup for the cron: the founder's page (which polls) also sends due follow-ups.
+		await sendDueFollowUps().catch(() => 0);
 		const r = repo();
 		const intro = await r.getByToken(data.token);
 		if (!intro) return null;
