@@ -56,7 +56,7 @@ _(Ryan ticks each rung here when he accepts it.)_
 - [x] Rung 0, accepted by Ryan 10:15 on the live URL.
 - [x] Rung 1, accepted by Ryan 10:27 on the live URL.
 - [x] Rung 2, accepted by Ryan 10:51 on the live URL.
-- [ ] **Rung 3, ready for Ryan (deployed 11:50).** On your phone, open https://two-hops.chrislacey89.workers.dev, send a request from a county with no gold yet, and fill in the new optional "How should they reach you?" field. Tap "Open your conversation" and leave that tab open. Use **Marion County + Accelerators & incubators** so it routes to Elevate Ventures. Then open https://two-hops.chrislacey89.workers.dev/approve and sign in with **your own passcode** (from Chris). You see only Elevate Ventures' requests; the super admin passcode sees every org. Your request is at the top with a gpt-4.1-mini draft and your contact info. Edit one line, then tap "Approve and send". Done when: the intro appears in your conversation tab without a refresh, your county turns from a blue dot to gold, and the other cards still show their drafts. Also re-accept the front door, since it gained the contact field.
+- [x] Rung 3, accepted by Ryan 12:31 on the live URL (Marion + Accelerators & incubators, approved as Elevate Ventures). Front door re-accept with the contact field still to come.
 
 ## Ryan: what to do next (in order)
 
