@@ -195,19 +195,19 @@ function HowWeBuiltIt() {
 				</p>
 				<div className="th-stats grid! grid-cols-2 gap-5! sm:flex!">
 					<div>
-						<b>42</b>
+						<b>49</b>
 						<span>tests, run on every push</span>
 					</div>
 					<div>
-						<b>68</b>
+						<b>83</b>
 						<span>decisions logged, with what we rejected</span>
 					</div>
 					<div>
-						<b>31</b>
+						<b>34</b>
 						<span>messages between the two agents</span>
 					</div>
 					<div>
-						<b>80+</b>
+						<b>95+</b>
 						<span>commits since 9:25</span>
 					</div>
 				</div>
