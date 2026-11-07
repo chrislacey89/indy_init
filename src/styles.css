@@ -969,3 +969,10 @@ body:has(.th-page) {
 	cursor: pointer;
 	font: inherit;
 }
+.th-waiting {
+	align-self: center;
+	margin: 6px 0 0;
+	color: #5b6788;
+	font-size: 13px;
+	text-align: center;
+}

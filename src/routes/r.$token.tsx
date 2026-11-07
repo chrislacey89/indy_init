@@ -71,11 +71,9 @@ function ThreadPage() {
 							)}
 						</p>
 					) : (
-						<p className="th-typing">
-							<span className="sr-only">Waiting for a reply</span>
-							<span aria-hidden="true" />
-							<span aria-hidden="true" />
-							<span aria-hidden="true" />
+						<p className="th-waiting">
+							Waiting for a reply from {thread.org.name}. A person there reads
+							your request before anything is sent.
 						</p>
 					)}
 				</div>

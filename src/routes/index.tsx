@@ -148,7 +148,7 @@ function FrontDoor() {
 				},
 				{
 					from: "two-hops",
-					text: "Your private link for this conversation. Their reply will show up there:",
+					text: `Want to hear from ${res.org.name} directly? Opening a conversation lets you and them actually contact each other: their reply lands on a private page only you have the link to. It's optional.`,
 					thread: res.threadToken,
 				},
 			]);
@@ -229,7 +229,7 @@ function FrontDoor() {
 								{b.thread && (
 									<Link to="/r/$token" params={{ token: b.thread }}>
 										{" "}
-										Open your conversation
+										Open a conversation
 									</Link>
 								)}
 							</p>
