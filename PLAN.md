@@ -38,6 +38,10 @@ A rung is done when Ryan accepts it on the live URL against its done-condition.
 | 5    | Who should meet this founder: ranked shortlist with reasons                                                 | Ryan explains three shortlists without asking Chris                      | Never lists a node without an approved intro                                                  | ~       |
 | 6    | Passport stamps per landed intro                                                                            | Ryan earns two stamps on his phone                                       | A stamp exists only for a landed intro                                                        | ~       |
 | 7    | Did-it-happen follow-up: after a set time, only if founder and ESO agreed to meet, the ESO rep gets an email (SMS later) asking yes/no and a short what-came-of-it text box; the answer marks landed | Ryan answers a follow-up from his phone and the intro turns landed | No intro becomes landed without a recorded yes | ~       |
+| 8    | Factory proof: an end-to-end test of the peak path (front door, approve, made, follow-up, landed) runs in CI on every push | Ryan sees the test run green in GitHub Actions and can say what it checks | The e2e test fails if any step of the peak path breaks | |
+| 9    | "How we built it" page: the shared agent thread (exported), the decision log, tests and CI, a sample Langfuse trace | Ryan walks a judge through it in 60 seconds without Chris | Page links resolve; the thread export is in docs/alignment-log.md | |
+
+**Checkpoint 3 (13:59, Chris):** every planned rung accepted (0-4, 3.5, 3.7, 7) with 106 minutes left at ~30 min per accepted rung, so rungs were added, not cut: Devpost draft first (overdue), then 8 (e2e test in CI) and 9 ("How we built it" page), then freeze prep from 3:15 (wipe, export the thread, fallback video, rehearse).
 
 **Cut order:** 6, then 5, then 3.5 (Langfuse), then map geometry to a 92-cell grid, then AI need classification to a dropdown, then outcome states to pending/made.
 **Never cut:** the record, the map, the approve tap, the live deploy.
