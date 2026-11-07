@@ -13,6 +13,8 @@
 	},
 	"upload_source_maps": true,
 	// Serve the app at the apex of the domain we bought (Cloudflare creates the DNS record and certificate).
+	// Keep the workers.dev URL live too; adding routes would otherwise turn it off.
+	"workers_dev": true,
 	"routes": [{ "pattern": "twohops.app", "custom_domain": true }],
 	"vars": {
 		// Frontend hostnames whose Turnstile tokens the front door accepts. Never localhost in production.
