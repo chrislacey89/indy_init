@@ -1,9 +1,65 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CountyMap } from "#/components/CountyMap";
 import { INDIANA_COUNTIES } from "#/domain/counties";
 import { HELP_TYPES } from "#/domain/help";
 import { askForHelp, getCountyStates } from "#/server/introductions";
+import { TURNSTILE_ACTION, TURNSTILE_SITEKEY } from "#/turnstile";
+
+type TurnstileApi = {
+	render: (el: HTMLElement, opts: Record<string, unknown>) => string;
+	reset: (id: string) => void;
+};
+declare global {
+	interface Window {
+		turnstile?: TurnstileApi;
+		onTwoHopsTurnstile?: () => void;
+	}
+}
+
+/** Renders Turnstile explicitly and keeps the latest single-use token; reset() asks for a fresh one. */
+function useTurnstile() {
+	const el = useRef<HTMLDivElement>(null);
+	const widgetId = useRef<string | undefined>(undefined);
+	const token = useRef("");
+	useEffect(() => {
+		const render = () => {
+			if (!el.current || !window.turnstile || widgetId.current) return;
+			widgetId.current = window.turnstile.render(el.current, {
+				sitekey: TURNSTILE_SITEKEY,
+				action: TURNSTILE_ACTION,
+				appearance: "interaction-only",
+				callback: (t: string) => {
+					token.current = t;
+				},
+				"expired-callback": () => {
+					token.current = "";
+				},
+			});
+		};
+		if (window.turnstile) render();
+		else {
+			window.onTwoHopsTurnstile = render;
+			if (!document.querySelector("script[data-turnstile]")) {
+				const s = document.createElement("script");
+				s.src =
+					"https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTwoHopsTurnstile";
+				s.async = true;
+				s.defer = true;
+				s.dataset.turnstile = "1";
+				document.head.appendChild(s);
+			}
+		}
+	}, []);
+	return {
+		el,
+		take: () => token.current,
+		reset: () => {
+			token.current = "";
+			if (widgetId.current) window.turnstile?.reset(widgetId.current);
+		},
+	};
+}
 
 export const Route = createFileRoute("/")({
 	loader: () => getCountyStates(),
@@ -47,6 +103,7 @@ function FrontDoor() {
 	const [error, setError] = useState("");
 	const [lastCounty, setLastCounty] = useState<string>();
 	const [saved, setSaved] = useState<SavedRequest[]>([]);
+	const human = useTurnstile();
 	useEffect(() => setSaved(loadSaved()), []);
 
 	const made: Record<string, number> = {};
@@ -69,6 +126,7 @@ function FrontDoor() {
 			need: String(form.get("need") ?? ""),
 			founder: String(form.get("founder") ?? ""),
 			contact: String(form.get("contact") ?? ""),
+			turnstileToken: human.take(),
 		};
 		setError("");
 		setBusy(true);
@@ -106,6 +164,8 @@ function FrontDoor() {
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Something went wrong.");
 		} finally {
+			// Turnstile tokens are single-use: get a fresh one before the next Send.
+			human.reset();
 			setBusy(false);
 		}
 	}
@@ -219,6 +279,7 @@ function FrontDoor() {
 								))}
 							</div>
 						</fieldset>
+						<div ref={human.el} className="th-turnstile" />
 						<button type="submit" disabled={busy}>
 							{busy ? "Finding help…" : "Send"}
 						</button>

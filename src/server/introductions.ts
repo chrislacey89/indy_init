@@ -11,6 +11,7 @@ import {
 	recordIntroduction,
 } from "#/domain/introductions";
 import { loadOrgs } from "#/domain/orgData";
+import { guardFrontDoor } from "./frontDoorGuard";
 
 function repo() {
 	return createD1IntroductionRepo(env.DB);
@@ -33,6 +34,7 @@ export const askForHelp = createServerFn({ method: "POST" })
 			need: string;
 			founder: string;
 			contact?: string;
+			turnstileToken?: string;
 		}) => {
 			const county = String(data?.county ?? "").trim();
 			const need = String(data?.need ?? "").trim();
@@ -46,10 +48,12 @@ export const askForHelp = createServerFn({ method: "POST" })
 				String(data?.contact ?? "")
 					.trim()
 					.slice(0, 120) || null;
-			return { county, need, founder, contact };
+			const turnstileToken = String(data?.turnstileToken ?? "");
+			return { county, need, founder, contact, turnstileToken };
 		},
 	)
 	.handler(async ({ data }) => {
+		await guardFrontDoor(data.turnstileToken);
 		const { route, intro } = await requestHelp(repo(), ORGS, data);
 		console.log(
 			JSON.stringify({

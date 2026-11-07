@@ -12,6 +12,18 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	"vars": {
+		// Frontend hostnames whose Turnstile tokens the front door accepts. Never localhost in production.
+		"TURNSTILE_HOSTNAMES": "two-hops.chrislacey89.workers.dev"
+	},
+	"ratelimits": [
+		{
+			// Per-IP cap on front-door requests. Generous, since a whole venue can share one IP.
+			"name": "FRONT_DOOR_LIMIT",
+			"namespace_id": "1001",
+			"simple": { "limit": 20, "period": 60 }
+		}
+	],
 	"d1_databases": [
 		{
 			"binding": "DB",
