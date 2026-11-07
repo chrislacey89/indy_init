@@ -36,7 +36,7 @@ const RUNGS: { label: string; t: number; note: string; pending?: boolean }[] = [
 	{ label: "3", t: at(12, 31), note: "Draft + approve" },
 	{ label: "4", t: at(13, 36), note: "The number, email, Langfuse" },
 	{ label: "7", t: at(13, 59), note: "Follow-up" },
-	{ label: "8·9", t: at(14, 15), note: "E2E in CI, this page", pending: true },
+	{ label: "8·9", t: at(14, 15), note: "E2E in CI, this page" },
 ];
 const CHECKPOINTS = [
 	{ t: at(11, 30), note: "12 min/rung: add rungs" },
@@ -147,9 +147,9 @@ function HowWeBuiltIt() {
 				</h1>
 				<p className="th-lede">
 					Built from an empty repo at Indy Init on November 7, 2026. Chris Lacey
-					builds with Claude Code. Ryan Allison owns the product, writes no
-					code, and works through his own agent. Nothing counted as done until
-					Ryan accepted it on the live site.
+					builds with Claude Code. Ryan Allison owns the product and works
+					through his own agent. Nothing counted as done until Ryan accepted it
+					on the live site.
 				</p>
 				<div className="th-stats grid! grid-cols-2 gap-5! sm:flex!">
 					<div>
@@ -272,10 +272,6 @@ function HowWeBuiltIt() {
 						<span className="inline-flex items-center gap-2">
 							<span className="h-3 w-3 rounded-full bg-[var(--th-gold)]" />
 							Rung accepted by Ryan
-						</span>
-						<span className="inline-flex items-center gap-2">
-							<span className="h-3 w-3 rounded-full border-2 border-[var(--th-gold)]" />
-							Built, waiting on Ryan
 						</span>
 						<span className="inline-flex items-center gap-2">
 							<span className="h-2.5 w-2.5 rotate-45 border-2 border-[var(--th-ink)]" />

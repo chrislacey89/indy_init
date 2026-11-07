@@ -6,6 +6,14 @@ import { Alert, AlertDescription } from "#/components/ui/alert";
 import { Bubble, BubbleContent } from "#/components/ui/bubble";
 import { Button } from "#/components/ui/button";
 import {
+	Combobox,
+	ComboboxContent,
+	ComboboxEmpty,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
+} from "#/components/ui/combobox";
+import {
 	Field,
 	FieldDescription,
 	FieldGroup,
@@ -20,6 +28,8 @@ import { INDIANA_COUNTIES } from "#/domain/counties";
 import { HELP_TYPES } from "#/domain/help";
 import { askForHelp, getMapData } from "#/server/introductions";
 import { TURNSTILE_ACTION, TURNSTILE_SITEKEY } from "#/turnstile";
+
+const COUNTY_NAMES = INDIANA_COUNTIES.map((c) => c.name);
 
 type TurnstileApi = {
 	render: (el: HTMLElement, opts: Record<string, unknown>) => string;
@@ -86,6 +96,8 @@ type ThreadItem = {
 	text: string;
 	link?: string;
 	thread?: string;
+	/** Who the conversation would be with, for the button caption. */
+	org?: string;
 };
 
 type SavedRequest = { token: string; county: string; need: string };
@@ -168,11 +180,8 @@ function FrontDoor() {
 					from: "two-hops",
 					text: res.reply,
 					link: res.org.website ?? res.org.profileUrl ?? undefined,
-				},
-				{
-					from: "two-hops",
-					text: `Want to hear from ${res.org.name} directly? Opening a conversation lets you and them actually contact each other: their reply lands on a private page only you have the link to. It's optional.`,
 					thread: res.threadToken,
+					org: res.org.name,
 				},
 			]);
 			setSaved(
@@ -268,11 +277,16 @@ function FrontDoor() {
 										</BubbleContent>
 									</Bubble>
 									{b.thread && (
-										<Button asChild variant="outline" size="sm">
-											<Link to="/r/$token" params={{ token: b.thread }}>
-												Open a conversation
-											</Link>
-										</Button>
+										<div className="grid justify-items-start gap-1">
+											<Button asChild variant="outline" size="sm">
+												{/* A plain link, not client routing: a tab opened before a deploy still loads the page cleanly. */}
+												<a href={`/r/${b.thread}`}>Open a conversation</a>
+											</Button>
+											<p className="m-0 max-w-[34ch] text-xs text-muted-foreground">
+												Optional. Lets you and {b.org ?? "them"} contact each
+												other on a private page only you have the link to.
+											</p>
+										</div>
 									)}
 								</MessageContent>
 							</Message>
@@ -293,22 +307,29 @@ function FrontDoor() {
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="county">Your county</FieldLabel>
-								<select
-									id="county"
+								<Combobox
+									items={COUNTY_NAMES}
 									name="county"
 									required
-									defaultValue=""
-									className="h-10 w-full rounded-md border border-input bg-background px-3 text-base text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+									autoHighlight
 								>
-									<option value="" disabled>
-										Choose a county
-									</option>
-									{INDIANA_COUNTIES.map((c) => (
-										<option key={c.fips} value={c.name}>
-											{c.name}
-										</option>
-									))}
-								</select>
+									<ComboboxInput
+										id="county"
+										placeholder="Start typing a county"
+									/>
+									<ComboboxContent>
+										<ComboboxEmpty>
+											No Indiana county by that name.
+										</ComboboxEmpty>
+										<ComboboxList>
+											{(name: string) => (
+												<ComboboxItem key={name} value={name}>
+													{name}
+												</ComboboxItem>
+											)}
+										</ComboboxList>
+									</ComboboxContent>
+								</Combobox>
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="contact">

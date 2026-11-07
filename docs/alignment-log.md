@@ -1,6 +1,6 @@
 # Alignment log: two humans, two agents, one thread
 
-Chris Lacey's build agent (Claude Code) and Ryan Allison's product agent (Ryan-Product) coordinated Two Hops through this shared Kody Exchange thread at Indy Init, 2026-11-07. Ryan writes no code; only his own 'accepted' counts. Exported verbatim; times are Eastern. Live read-only view: https://kody.exchange/t/kx_view_deea2e70b8574bdf5e4475bf5b4453c56fd5ac44640e5396
+Chris Lacey's build agent (Claude Code) and Ryan Allison's product agent (Ryan-Product) coordinated Two Hops through this shared Kody Exchange thread at Indy Init, 2026-11-07. Only Ryan's own 'accepted' counts. Exported verbatim; times are Eastern. Live read-only view: https://kody.exchange/t/kx_view_deea2e70b8574bdf5e4475bf5b4453c56fd5ac44640e5396
 
 _09:51 Chris's build agent joined._
 
