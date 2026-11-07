@@ -12,14 +12,14 @@ Stack: TanStack Start, TypeScript, Drizzle, Cloudflare Workers + D1.
 
 The build actually started at 9:25 ("the build starts now" at the welcome). Times below are from that start.
 
-| Mark                     | Time                     |
-| ------------------------ | ------------------------ |
-| Start                    | 9:25                     |
-| Kickoff block ends       | 9:20                     |
+| Mark                     | Time                            |
+| ------------------------ | ------------------------------- |
+| Start                    | 9:25                            |
+| Kickoff block ends       | 9:20                            |
 | Checkpoints              | 11:15 (held 11:30), 12:45, 2:15 |
-| Freeze (no new features) | 3:45                     |
-| Submit by                | 4:45                     |
-| Submissions close        | 5:00                     |
+| Freeze (no new features) | 3:45                            |
+| Submit by                | 4:45                            |
+| Submissions close        | 5:00                            |
 
 At each checkpoint we take the median minutes per accepted rung and re-plan the rest of the ladder from that number. The freeze and the deadline never move; the ladder does.
 
@@ -27,19 +27,19 @@ At each checkpoint we take the median minutes per accepted rung and re-plan the 
 
 A rung is done when Ryan accepts it on the live URL against its done-condition.
 
-| Rung | Adds                                                                                                        | Done when                                                                | Tracer test                                                                                   | Stretch |
-| ---- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ------- |
-| 0    | Kickoff: repo, tests, CI on push, live URL, org data import                                                 | Ryan opens the live URL on laptop and phone                              | Health route returns 200; import rejects rows without a county                                |         |
-| 1    | Record one introduction; 92-county map colored by count                                                     | Ryan submits from his phone and the county changes on the laptop         | Posting an intro increments only its county; all 92 counties render at zero                   |         |
-| 2    | Front door: need + county in a text-thread page; lookup routes same county, then adjacent; saved as pending | Ryan tries three counties, including one with nothing listed             | Every one of the 92 counties resolves to an organization                                      |         |
-| 3    | Approve tap: AI drafts the intro, a human edits and approves on passcode-protected /approve; pending becomes made and the intro appears in the founder's thread                          | Ryan edits one line, approves, and the county turns from pending to made | No intro reaches made without an approval record; every draft stores model and prompt version |         |
-| 3.5  | Langfuse traces: every AI draft (prompt, model, output) traced; Ryan's edit or approval logged as a score | Ryan opens Langfuse, finds the trace for a draft he edited, and sees his correction as a score | Every draft call emits one trace with model and prompt version; an approval writes a score to that trace | ~       |
-| 4    | The number: landed / cold states; introductions, hops, counties from help, per county                       | Ryan checks the numbers by hand against the demo data                    | Founder to org to person is 2 hops; county totals equal the sum of the record                 |         |
-| 5    | Who should meet this founder: ranked shortlist with reasons                                                 | Ryan explains three shortlists without asking Chris                      | Never lists a node without an approved intro                                                  | ~       |
-| 6    | Passport stamps per landed intro                                                                            | Ryan earns two stamps on his phone                                       | A stamp exists only for a landed intro                                                        | ~       |
-| 7    | Did-it-happen follow-up: after a set time, only if founder and ESO agreed to meet, the ESO rep gets an email (SMS later) asking yes/no and a short what-came-of-it text box; the answer marks landed | Ryan answers a follow-up from his phone and the intro turns landed | No intro becomes landed without a recorded yes | ~       |
-| 8    | Factory proof: an end-to-end test of the peak path (front door, approve, made, follow-up, landed) runs in CI on every push | Ryan sees the test run green in GitHub Actions and can say what it checks | The e2e test fails if any step of the peak path breaks | |
-| 9    | "How we built it" page: the shared agent thread (exported), the decision log, tests and CI, a sample Langfuse trace | Ryan walks a judge through it in 60 seconds without Chris | Page links resolve; the thread export is in docs/alignment-log.md | |
+| Rung | Adds                                                                                                                                                                                                 | Done when                                                                                      | Tracer test                                                                                              | Stretch |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------- |
+| 0    | Kickoff: repo, tests, CI on push, live URL, org data import                                                                                                                                          | Ryan opens the live URL on laptop and phone                                                    | Health route returns 200; import rejects rows without a county                                           |         |
+| 1    | Record one introduction; 92-county map colored by count                                                                                                                                              | Ryan submits from his phone and the county changes on the laptop                               | Posting an intro increments only its county; all 92 counties render at zero                              |         |
+| 2    | Front door: need + county in a text-thread page; lookup routes same county, then adjacent; saved as pending                                                                                          | Ryan tries three counties, including one with nothing listed                                   | Every one of the 92 counties resolves to an organization                                                 |         |
+| 3    | Approve tap: AI drafts the intro, a human edits and approves on passcode-protected /approve; pending becomes made and the intro appears in the founder's thread                                      | Ryan edits one line, approves, and the county turns from pending to made                       | No intro reaches made without an approval record; every draft stores model and prompt version            |         |
+| 3.5  | Langfuse traces: every AI draft (prompt, model, output) traced; Ryan's edit or approval logged as a score                                                                                            | Ryan opens Langfuse, finds the trace for a draft he edited, and sees his correction as a score | Every draft call emits one trace with model and prompt version; an approval writes a score to that trace | ~       |
+| 4    | The number: landed / cold states; introductions, hops, counties from help, per county                                                                                                                | Ryan checks the numbers by hand against the demo data                                          | Founder to org to person is 2 hops; county totals equal the sum of the record                            |         |
+| 5    | Who should meet this founder: ranked shortlist with reasons                                                                                                                                          | Ryan explains three shortlists without asking Chris                                            | Never lists a node without an approved intro                                                             | ~       |
+| 6    | Passport stamps per landed intro                                                                                                                                                                     | Ryan earns two stamps on his phone                                                             | A stamp exists only for a landed intro                                                                   | ~       |
+| 7    | Did-it-happen follow-up: after a set time, only if founder and ESO agreed to meet, the ESO rep gets an email (SMS later) asking yes/no and a short what-came-of-it text box; the answer marks landed | Ryan answers a follow-up from his phone and the intro turns landed                             | No intro becomes landed without a recorded yes                                                           | ~       |
+| 8    | Factory proof: an end-to-end test of the peak path (front door, approve, made, follow-up, landed) runs in CI on every push                                                                           | Ryan sees the test run green in GitHub Actions and can say what it checks                      | The e2e test fails if any step of the peak path breaks                                                   |         |
+| 9    | "How we built it" page: the shared agent thread (exported), the decision log, tests and CI, a sample Langfuse trace                                                                                  | Ryan walks a judge through it in 60 seconds without Chris                                      | Page links resolve; the thread export is in docs/alignment-log.md                                        |         |
 
 **Checkpoint 3 (13:59, Chris):** every planned rung accepted (0-4, 3.5, 3.7, 7) with 106 minutes left at ~30 min per accepted rung, so rungs were added, not cut: Devpost draft first (overdue), then 8 (e2e test in CI) and 9 ("How we built it" page), then freeze prep from 3:15 (wipe, export the thread, fallback video, rehearse).
 
@@ -135,4 +135,3 @@ _(Ryan ticks each rung here when he accepts it.)_
 9. Devpost project + teammate; table number.
 
    **Ryan:** Teammates Ryan Allison and Chris Lacey. Table 25. The Devpost write-up is held and revisited later; the project itself must exist with both teammates before the 4:45 submit mark.
-
