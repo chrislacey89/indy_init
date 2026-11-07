@@ -22,7 +22,11 @@ import {
 	FieldSet,
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
-import { Message, MessageContent } from "#/components/ui/message";
+import {
+	Message,
+	MessageContent,
+	MessageFooter,
+} from "#/components/ui/message";
 import { ToggleGroup, ToggleGroupItem } from "#/components/ui/toggle-group";
 import { INDIANA_COUNTIES } from "#/domain/counties";
 import { HELP_TYPES } from "#/domain/help";
@@ -91,11 +95,22 @@ export const Route = createFileRoute("/")({
 	component: FrontDoor,
 });
 
+/** Sets the receipt on the founder's most recent bubble. */
+function markLast(
+	t: ThreadItem[],
+	status: NonNullable<ThreadItem["status"]>,
+): ThreadItem[] {
+	const i = t.map((b) => b.from).lastIndexOf("founder");
+	return i < 0 ? t : t.map((b, j) => (j === i ? { ...b, status } : b));
+}
+
 type ThreadItem = {
 	from: "founder" | "two-hops";
 	text: string;
 	link?: string;
 	thread?: string;
+	/** Delivery receipt on the founder's own bubble, like a text app. */
+	status?: "sending" | "sent" | "failed";
 	/** Who the conversation would be with, for the button caption. */
 	org?: string;
 };
@@ -123,11 +138,11 @@ function remember(r: SavedRequest): SavedRequest[] {
 }
 
 function FrontDoor() {
-	const { states, distance, withinOne, handshakes, landed } =
-		Route.useLoaderData();
+	const { states, distance } = Route.useLoaderData();
 	const [picked, setPicked] = useState<string>();
 	const router = useRouter();
 	const [thread, setThread] = useState<ThreadItem[]>([]);
+	const showThread = thread.length > 0;
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [lastCounty, setLastCounty] = useState<string>();
@@ -142,8 +157,6 @@ function FrontDoor() {
 		made[county] = s.made;
 		pending[county] = s.pending;
 	}
-	const totalMade = Object.values(made).reduce((a, b) => a + b, 0);
-	const totalPending = Object.values(pending).reduce((a, b) => a + b, 0);
 
 	function distanceText(county: string): string {
 		const d = distance[county];
@@ -170,12 +183,13 @@ function FrontDoor() {
 			{
 				from: "founder",
 				text: `I'm ${data.founder} in ${data.county} County. I need ${data.need.toLowerCase()}.`,
+				status: "sending",
 			},
 		]);
 		try {
 			const res = await askForHelp({ data });
 			setThread((t) => [
-				...t,
+				...markLast(t, "sent"),
 				{
 					from: "two-hops",
 					text: res.reply,
@@ -194,6 +208,7 @@ function FrontDoor() {
 			setLastCounty(data.county);
 			await router.invalidate();
 		} catch (err) {
+			setThread((t) => markLast(t, "failed"));
 			setError(err instanceof Error ? err.message : "Something went wrong.");
 		} finally {
 			// Turnstile tokens are single-use: get a fresh one before the next Send.
@@ -213,86 +228,75 @@ function FrontDoor() {
 					Ask once: your county and what you need. We find the closest listed
 					organization and ask a real person there to introduce themselves.
 				</p>
-				<div className="th-stats">
-					<div>
-						<b>{totalMade}</b>
-						<span>introductions made</span>
-					</div>
-					<div>
-						<b>{totalPending}</b>
-						<span>waiting on a person</span>
-					</div>
-					<div>
-						<b>
-							{withinOne}
-							<small>/92</small>
-						</b>
-						<span>counties within one county of a recorded handshake</span>
-					</div>
-				</div>
-				<p className="th-hops-line">
-					{handshakes === 0
-						? "Every introduction is 2 hops: you, an organization, a person there."
-						: `${handshakes} recorded ${handshakes === 1 ? "handshake" : "handshakes"}, 2 hops each: you, an organization, a person there.${landed ? ` ${landed} confirmed ${landed === 1 ? "meeting" : "meetings"}.` : ""}`}
-				</p>
 			</header>
 
 			<section className="th-grid">
 				<div className="th-phone">
-					<div
-						className="th-thread flex flex-col gap-3"
-						role="log"
-						aria-label="Conversation"
-						aria-live="polite"
-					>
-						{thread.length === 0 && (
-							<p className="th-empty">
-								Your conversation shows up here, like a text thread.
-							</p>
-						)}
-						{thread.map((b, i) => (
-							<Message
-								// biome-ignore lint/suspicious/noArrayIndexKey: append-only thread
-								key={i}
-								align={b.from === "founder" ? "end" : "start"}
-							>
-								<MessageContent>
-									<Bubble
-										variant={b.from === "founder" ? "default" : "secondary"}
-										align={b.from === "founder" ? "end" : "start"}
-									>
-										<BubbleContent>
-											{b.text}
-											{b.link && (
-												<a
-													href={b.link}
-													target="_blank"
-													rel="noopener noreferrer"
-													className="font-semibold underline"
-												>
-													{" "}
-													Their page
-												</a>
-											)}
-										</BubbleContent>
-									</Bubble>
-									{b.thread && (
-										<div className="grid justify-items-start gap-1">
-											<Button asChild variant="outline" size="sm">
-												{/* A plain link, not client routing: a tab opened before a deploy still loads the page cleanly. */}
-												<a href={`/r/${b.thread}`}>Open a conversation</a>
-											</Button>
-											<p className="m-0 max-w-[34ch] text-xs text-muted-foreground">
-												Optional. Lets you and {b.org ?? "them"} contact each
-												other on a private page only you have the link to.
-											</p>
-										</div>
-									)}
-								</MessageContent>
-							</Message>
-						))}
-					</div>
-					<form onSubmit={onSubmit} className="mt-4">
+					{showThread && (
+						<div
+							className="th-thread flex flex-col gap-3"
+							role="log"
+							aria-label="Conversation"
+							aria-live="polite"
+						>
+							{thread.map((b, i) => (
+								<Message
+									// biome-ignore lint/suspicious/noArrayIndexKey: append-only thread
+									key={i}
+									align={b.from === "founder" ? "end" : "start"}
+								>
+									<MessageContent>
+										<Bubble
+											variant={b.from === "founder" ? "default" : "secondary"}
+											align={b.from === "founder" ? "end" : "start"}
+										>
+											<BubbleContent>
+												{b.text}
+												{b.link && (
+													<a
+														href={b.link}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="font-semibold underline"
+													>
+														{" "}
+														Their page
+													</a>
+												)}
+											</BubbleContent>
+										</Bubble>
+										{b.thread && (
+											<div className="grid justify-items-start gap-1">
+												<Button asChild variant="outline" size="sm">
+													{/* A plain link, not client routing: a tab opened before a deploy still loads the page cleanly. */}
+													<a href={`/r/${b.thread}`}>Open a conversation</a>
+												</Button>
+												<p className="m-0 max-w-[34ch] text-xs text-muted-foreground">
+													Optional. Lets you and {b.org ?? "them"} contact each
+													other on a private page only you have the link to.
+												</p>
+											</div>
+										)}
+										{b.from === "founder" && b.status && (
+											<MessageFooter
+												role="status"
+												className={
+													b.status === "failed" ? "text-destructive" : undefined
+												}
+											>
+												{b.status === "sending"
+													? "Sending…"
+													: b.status === "sent"
+														? "Delivered ✓"
+														: "Not sent. Check the form and try again."}
+											</MessageFooter>
+										)}
+									</MessageContent>
+								</Message>
+							))}
+						</div>
+					)}
+					<form onSubmit={onSubmit} className={showThread ? "mt-4" : undefined}>
 						<FieldGroup>
 							<Field>
 								<FieldLabel htmlFor="founder">Your first name</FieldLabel>
