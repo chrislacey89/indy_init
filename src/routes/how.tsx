@@ -132,14 +132,45 @@ function HowWeBuiltIt() {
 					</p>
 					<p>
 						<Ext href={`${REPO}/actions`}>GitHub Actions</Ext> runs lint,
-						typecheck, the tests and a gitleaks secret scan on every push. Local
-						hooks block code written without tests and destructive git commands,
-						and audit dependencies before each push.
+						typecheck, the tests and a gitleaks secret scan on every push.
+					</p>
+					<p>
+						<Ext href={`${REPO}/blob/main/lefthook.yml`}>Commit gates</Ext>:
+						every commit runs Biome, typecheck, the tests and a secret scan.
+						Every push runs a dependency audit. The audit blocked our pushes
+						twice today, once forcing two dependency overrides and once catching
+						a UI tool's transitive dependencies. Agent hooks block code written
+						without tests and destructive git commands.
 					</p>
 				</Section>
 
 				<Section
-					title="5. AI you can audit"
+					title="5. Security and trust boundaries"
+					lede="Built in at Ryan's request, not added for the demo."
+				>
+					<ul className="list-disc space-y-1 pl-5">
+						<li>
+							The front door is protected by Cloudflare Turnstile plus a limit
+							of 20 requests a minute per IP address.
+						</li>
+						<li>
+							Each organization has its own passcode and sees only the requests
+							routed to it. The server checks this on every approve action, not
+							just when the page loads.
+						</li>
+						<li>
+							The founder's contact details are shown only to the approving
+							organization, never on the map or in public.
+						</li>
+						<li>
+							Secrets live only in Worker secrets, and the repo is scanned for
+							them on every commit and push.
+						</li>
+					</ul>
+				</Section>
+
+				<Section
+					title="6. AI you can audit"
 					lede="The AI drafts. A person approves. The record shows both."
 				>
 					<p>
@@ -153,10 +184,15 @@ function HowWeBuiltIt() {
 							A sample trace
 						</Ext>
 					</p>
+					<p>
+						Every step of the path also writes a structured log event that we
+						can watch live: help_requested, draft_created, intro_approved,
+						intro_emailed, meeting_agreed, follow_up_sent and intro_landed.
+					</p>
 				</Section>
 
 				<Section
-					title="6. Where the AI needed correcting"
+					title="7. Where the AI needed correcting"
 					lede="All of it is in the decision log and the thread."
 				>
 					<ul className="list-disc space-y-1 pl-5">
