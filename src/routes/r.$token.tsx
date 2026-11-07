@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Brand } from "#/components/FlagTorch";
+import { Brand } from "#/components/Brand";
 import { getThread } from "#/server/approvals";
 
 export const Route = createFileRoute("/r/$token")({

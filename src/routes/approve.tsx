@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Brand } from "#/components/FlagTorch";
+import { Brand } from "#/components/Brand";
 import {
 	approveIntro,
 	draftIntro,

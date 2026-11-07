@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { Brand } from "#/components/Brand";
 import { CountyMap } from "#/components/CountyMap";
-import { Brand } from "#/components/FlagTorch";
 import { INDIANA_COUNTIES } from "#/domain/counties";
 import { HELP_TYPES } from "#/domain/help";
 import { askForHelp, getCountyStates } from "#/server/introductions";

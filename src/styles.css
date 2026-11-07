@@ -1005,3 +1005,10 @@ body:has(.th-page)::before,
 body:has(.th-page)::after {
 	display: none;
 }
+.th-flag {
+	display: block;
+	width: 54px;
+	height: 36px;
+	border-radius: 3px;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
