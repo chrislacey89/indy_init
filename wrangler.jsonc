@@ -16,7 +16,7 @@
 		// Frontend hostnames whose Turnstile tokens the front door accepts. Never localhost in production.
 		"TURNSTILE_HOSTNAMES": "two-hops.chrislacey89.workers.dev",
 		// Onboarded email-sending domain. Empty = emailing approved intros is off.
-		"EMAIL_FROM_DOMAIN": ""
+		"EMAIL_FROM_DOMAIN": "twohops.app"
 	},
 	"send_email": [{ "name": "EMAIL" }],
 	"ratelimits": [
