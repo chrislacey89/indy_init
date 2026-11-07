@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { Brand } from "#/components/FlagTorch";
 import {
 	approveIntro,
 	draftIntro,
@@ -47,11 +48,11 @@ function Unlock() {
 	return (
 		<main className="th-page">
 			<header className="th-head">
-				<p className="th-kicker">Two Hops · Approve</p>
+				<Brand where="Approve" />
 				<h1 className="th-title">Approve introductions</h1>
 				<p className="th-lede">Enter your passcode once on this device.</p>
 			</header>
-			<form className="th-compose th-unlock" onSubmit={onSubmit}>
+			<form className="th-phone th-compose th-unlock" onSubmit={onSubmit}>
 				<label>
 					Passcode
 					<input
@@ -81,7 +82,7 @@ function QueueView({ items, viewer }: { items: Item[]; viewer: Viewer }) {
 	return (
 		<main className="th-page">
 			<header className="th-head">
-				<p className="th-kicker">Two Hops · Approve</p>
+				<Brand where="Approve" />
 				<h1 className="th-title">
 					{viewer.org ? `Waiting on ${viewer.org}` : "Waiting on a person"}
 				</h1>

@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { Brand } from "#/components/FlagTorch";
 import { getThread } from "#/server/approvals";
 
 export const Route = createFileRoute("/r/$token")({
@@ -22,8 +23,12 @@ function ThreadPage() {
 	if (!thread)
 		return (
 			<main className="th-page">
+				<Brand where="Your conversation" />
 				<p className="th-lede">
-					We couldn't find that conversation. <Link to="/">Start over</Link>
+					We couldn't find that conversation.{" "}
+					<Link to="/" className="th-foot-link">
+						Start over
+					</Link>
 				</p>
 			</main>
 		);
@@ -31,7 +36,7 @@ function ThreadPage() {
 	return (
 		<main className="th-page">
 			<header className="th-head">
-				<p className="th-kicker">Two Hops · your conversation</p>
+				<Brand where="Your conversation" />
 				<h1 className="th-title">
 					{thread.intro
 						? `${thread.org.name} wrote back.`

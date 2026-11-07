@@ -1,6 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { CountyMap } from "#/components/CountyMap";
+import { Brand } from "#/components/FlagTorch";
 import { INDIANA_COUNTIES } from "#/domain/counties";
 import { addIntroduction, getCountyCounts } from "#/server/introductions";
 
@@ -44,9 +45,9 @@ function Home() {
 	return (
 		<main className="th-page">
 			<header className="th-head">
-				<p className="th-kicker">Two Hops · Indiana</p>
+				<Brand where="Record a handshake" />
 				<h1 className="th-title">
-					Every founder, two introductions from help.
+					Every Indiana founder, <em>two hops</em> from help.
 				</h1>
 				<p className="th-lede">
 					Each handshake is recorded. The map is the record: introductions made,

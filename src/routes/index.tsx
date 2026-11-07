@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { CountyMap } from "#/components/CountyMap";
+import { Brand } from "#/components/FlagTorch";
 import { INDIANA_COUNTIES } from "#/domain/counties";
 import { HELP_TYPES } from "#/domain/help";
 import { askForHelp, getCountyStates } from "#/server/introductions";
@@ -173,12 +174,12 @@ function FrontDoor() {
 	return (
 		<main className="th-page">
 			<header className="th-head">
-				<p className="th-kicker">Two Hops · Indiana</p>
+				<Brand where="Indiana" />
 				<h1 className="th-title">
-					Ask once. Get the nearest help, two introductions away.
+					Every Indiana founder, <em>two hops</em> from help.
 				</h1>
 				<p className="th-lede">
-					Tell us your county and what you need. We find the closest listed
+					Ask once: your county and what you need. We find the closest listed
 					organization and ask a real person there to introduce themselves.
 				</p>
 				<div className="th-stats">
