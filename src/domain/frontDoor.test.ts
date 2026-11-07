@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { requestHelp } from "./frontDoor";
+import { founderEmail, requestHelp } from "./frontDoor";
 import { countyStates, createInMemoryIntroductionRepo } from "./introductions";
 import type { Org } from "./routing";
 
@@ -50,5 +50,17 @@ describe("the front door", () => {
 
 		expect(states.Posey).toEqual({ made: 0, pending: 1 });
 		expect(states.Vanderburgh).toEqual({ made: 0, pending: 0 });
+	});
+});
+
+describe("the founder's contact", () => {
+	it("is optional: blank means none", () => {
+		expect(founderEmail("  ")).toBeNull();
+	});
+	it("accepts an email, trimmed", () => {
+		expect(founderEmail("  ana@example.com ")).toBe("ana@example.com");
+	});
+	it("refuses a phone number, since we only email", () => {
+		expect(() => founderEmail("317-555-0100")).toThrow(/email/i);
 	});
 });

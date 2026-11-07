@@ -332,19 +332,19 @@ function FrontDoor() {
 								</Combobox>
 							</Field>
 							<Field>
-								<FieldLabel htmlFor="contact">
-									How should they reach you?
-								</FieldLabel>
+								<FieldLabel htmlFor="contact">Your email</FieldLabel>
 								<Input
 									id="contact"
 									name="contact"
+									type="email"
 									maxLength={120}
 									autoComplete="email"
-									placeholder="Email or phone"
+									placeholder="you@example.com"
 									aria-describedby="contact-help"
 								/>
 								<FieldDescription id="contact-help">
-									Optional. Only the organization sees it.
+									Optional. Only the organization sees it, and your introduction
+									is emailed here.
 								</FieldDescription>
 							</Field>
 							<FieldSet>

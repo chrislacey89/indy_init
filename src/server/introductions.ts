@@ -4,7 +4,7 @@ import { createD1FollowUpRepo } from "#/db/followUpRepo";
 import { createD1IntroductionRepo } from "#/db/introductionRepo";
 import { isIndianaCounty } from "#/domain/counties";
 import { isLanded } from "#/domain/followUp";
-import { requestHelp } from "#/domain/frontDoor";
+import { founderEmail, requestHelp } from "#/domain/frontDoor";
 import { isHelpType, replyText } from "#/domain/help";
 import {
 	countyCounts,
@@ -69,10 +69,7 @@ export const askForHelp = createServerFn({ method: "POST" })
 			if (!isIndianaCounty(county)) throw new Error("Pick an Indiana county.");
 			if (!isHelpType(need)) throw new Error("Pick the kind of help you need.");
 			if (!founder) throw new Error("Tell us your first name.");
-			const contact =
-				String(data?.contact ?? "")
-					.trim()
-					.slice(0, 120) || null;
+			const contact = founderEmail(String(data?.contact ?? ""));
 			const turnstileToken = String(data?.turnstileToken ?? "");
 			return { county, need, founder, contact, turnstileToken };
 		},

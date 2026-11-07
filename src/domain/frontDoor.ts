@@ -31,3 +31,12 @@ export async function requestHelp(
 	});
 	return { route, intro };
 }
+
+/** The founder's optional contact is an email (we only send email). Blank means none; anything else is refused. */
+export function founderEmail(raw: string): string | null {
+	const email = raw.trim().slice(0, 120);
+	if (!email) return null;
+	if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+		throw new Error("That email doesn't look right.");
+	return email;
+}

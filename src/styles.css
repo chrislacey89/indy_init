@@ -515,11 +515,12 @@ body:has(.th-page) {
 	display: grid;
 	gap: 28px;
 }
-.th-page :focus-visible {
+/* Our own focus outline, except on shadcn controls (they carry data-slot and draw their own ring). */
+.th-page :focus-visible:not([data-slot]) {
 	outline: 3px solid var(--th-gold);
 	outline-offset: 2px;
 }
-:is(.th-phone, .th-card, .th-form) :focus-visible {
+:is(.th-phone, .th-card, .th-form) :focus-visible:not([data-slot]) {
 	outline-color: var(--th-ink-dark);
 }
 
