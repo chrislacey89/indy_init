@@ -46,3 +46,26 @@ export const drafts = sqliteTable("drafts", {
 		.$defaultFn(() => new Date()),
 	approvedAt: integer("approved_at", { mode: "timestamp" }),
 });
+
+/** Did-it-happen follow-ups (rung 7). One per made introduction, armed by the founder. */
+export const followUps = sqliteTable(
+	"follow_ups",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		introId: integer("intro_id")
+			.notNull()
+			.references(() => introductions.id),
+		token: text("token").notNull(),
+		notifyAccount: text("notify_account").notNull(),
+		agreedAt: integer("agreed_at", { mode: "timestamp" }).notNull(),
+		dueAt: integer("due_at", { mode: "timestamp" }).notNull(),
+		sentAt: integer("sent_at", { mode: "timestamp" }),
+		answer: text("answer", { enum: ["yes", "no"] }),
+		note: text("note"),
+		answeredAt: integer("answered_at", { mode: "timestamp" }),
+	},
+	(t) => [
+		uniqueIndex("follow_ups_token").on(t.token),
+		uniqueIndex("follow_ups_intro").on(t.introId),
+	],
+);

@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Brand } from "#/components/Brand";
 import { Bubble, BubbleContent } from "#/components/ui/bubble";
+import { Button } from "#/components/ui/button";
 import {
 	Message,
 	MessageContent,
@@ -9,6 +10,7 @@ import {
 	MessageHeader,
 } from "#/components/ui/message";
 import { getThread } from "#/server/approvals";
+import { agreeToMeetFn } from "#/server/followUps";
 
 export const Route = createFileRoute("/r/$token")({
 	loader: ({ params }) => getThread({ data: { token: params.token } }),
@@ -19,6 +21,17 @@ function ThreadPage() {
 	const thread = Route.useLoaderData();
 	const router = useRouter();
 	const waiting = thread?.state === "pending";
+	const { token } = Route.useParams();
+	const [arming, setArming] = useState(false);
+	async function meeting() {
+		setArming(true);
+		try {
+			await agreeToMeetFn({ data: { token } });
+			await router.invalidate();
+		} finally {
+			setArming(false);
+		}
+	}
 
 	// While a person hasn't answered yet, check back every few seconds so the intro lands live.
 	useEffect(() => {
@@ -107,6 +120,26 @@ function ThreadPage() {
 								)}
 							</MessageContent>
 						</Message>
+					)}
+					{thread.intro && !thread.followUp && (
+						<div className="flex flex-col items-start gap-2">
+							<p className="text-sm text-muted-foreground">
+								Did you and {thread.org.name} agree to meet? Tell us, and we'll
+								check in with them afterward to see how it went.
+							</p>
+							<Button type="button" onClick={meeting} disabled={arming}>
+								{arming ? "Saving…" : "We're meeting"}
+							</Button>
+						</div>
+					)}
+					{thread.followUp && (
+						<p className="th-waiting">
+							{thread.followUp.answer === "yes"
+								? `Landed: ${thread.org.name} confirmed you met.${thread.followUp.note ? ` "${thread.followUp.note}"` : ""}`
+								: thread.followUp.answer === "no"
+									? `${thread.org.name} says the meeting hasn't happened yet.`
+									: `Great. We'll check in with ${thread.org.name} after your meeting.`}
+						</p>
 					)}
 					{!thread.intro && (
 						<p className="th-waiting">

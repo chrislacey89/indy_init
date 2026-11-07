@@ -6,8 +6,9 @@ import {
 	getRequestUrl,
 	setCookie,
 } from "@tanstack/react-start/server";
+import { createD1FollowUpRepo } from "#/db/followUpRepo";
 import { createD1IntroductionRepo } from "#/db/introductionRepo";
-import { canHandle, type Scope } from "#/domain/access";
+import { canHandle } from "#/domain/access";
 import { replyText } from "#/domain/help";
 import {
 	approvedText,
@@ -21,39 +22,12 @@ import { introEmail } from "#/domain/introEmail";
 import { introPrompt, PROMPT_VERSION } from "#/domain/introPrompt";
 import { loadOrgs } from "#/domain/orgData";
 import { routeFounder } from "#/domain/routing";
+import { ACCOUNTS, type Account, describe, orgName } from "./accounts";
 import { DRAFT_MODEL, draftWithOpenAi } from "./aiDraft";
 import { langfuseFrom, scoreDraft } from "./langfuse";
 
 const ORGS = loadOrgs();
-const ORG_BY_ID = new Map(ORGS.map((o) => [o.id, o]));
 const COOKIE = "th_approve";
-
-type Account = {
-	id: string;
-	/** Stored as the approver on every approval this account makes. */
-	name: string;
-	secret: () => string | undefined;
-	scope: Scope;
-};
-
-/**
- * Demo accounts. The super admin sees every org's requests (demo only); Ryan is bound to one org,
- * the way a real org account would be. Real org sign-in comes after the hackathon.
- */
-const ACCOUNTS: Account[] = [
-	{
-		id: "admin",
-		name: "Demo super admin",
-		secret: () => env.APPROVE_PASSCODE,
-		scope: { kind: "all" },
-	},
-	{
-		id: "ryan",
-		name: "Ryan",
-		secret: () => env.RYAN_PASSCODE,
-		scope: { kind: "org", orgId: "elevate-ventures" },
-	},
-];
 
 function repo() {
 	return createD1IntroductionRepo(env.DB);
@@ -98,22 +72,8 @@ async function requireHandles(account: Account, introId: number) {
 
 function viewerOf(account: Account) {
 	const org =
-		account.scope.kind === "org"
-			? (ORG_BY_ID.get(account.scope.orgId)?.name ?? account.scope.orgId)
-			: null;
+		account.scope.kind === "org" ? orgName(account.scope.orgId) : null;
 	return { name: account.name, org };
-}
-
-function describe(intro: Introduction) {
-	const org = ORG_BY_ID.get(intro.toNode.replace(/^org:/, ""));
-	return {
-		founder: intro.fromNode.replace(/^founder:/, ""),
-		org: {
-			name: org?.name ?? intro.toNode,
-			county: org?.county ?? null,
-			link: org?.website ?? org?.profileUrl ?? null,
-		},
-	};
 }
 
 export const unlockApprove = createServerFn({ method: "POST" })
@@ -359,7 +319,15 @@ export const getThread = createServerFn({ method: "GET" })
 		const approved = drafts
 			.filter((d) => d.status === "approved")
 			.sort((a, b) => b.id - a.id)[0];
+		const followUp = await createD1FollowUpRepo(env.DB).byIntro(intro.id);
 		return {
+			followUp: followUp
+				? {
+						sent: !!followUp.sentAt,
+						answer: followUp.answer,
+						note: followUp.note,
+					}
+				: null,
 			founder,
 			county: intro.founderCounty,
 			need: intro.needType,

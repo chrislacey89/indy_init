@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { introEmail } from "./introEmail";
+import { followUpEmail, introEmail } from "./introEmail";
 
 const base = {
 	founder: "Ana",
@@ -40,5 +40,23 @@ describe("emailing an approved introduction", () => {
 		expect(email?.html).not.toContain("<script>");
 		expect(email?.html).toContain("&lt;script&gt;");
 		expect(email?.html).toContain("A&amp;B &lt;Lab&gt;");
+	});
+});
+
+describe("the follow-up email to the org", () => {
+	it("asks the approver whether the meeting happened, with a link to answer", () => {
+		const email = followUpEmail({
+			to: "ryan@example.com",
+			founder: "Ana",
+			orgName: "Elevate Ventures",
+			answerUrl: "https://two-hops.example/f/xyz",
+			fromDomain: "twohops.example",
+		});
+
+		expect(email.to).toBe("ryan@example.com");
+		expect(email.from.email).toBe("follow-up@twohops.example");
+		expect(email.subject).toContain("Ana");
+		expect(email.text).toContain("https://two-hops.example/f/xyz");
+		expect(email.html).toContain("https://two-hops.example/f/xyz");
 	});
 });

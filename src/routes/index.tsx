@@ -111,7 +111,8 @@ function remember(r: SavedRequest): SavedRequest[] {
 }
 
 function FrontDoor() {
-	const { states, distance, withinOne, handshakes } = Route.useLoaderData();
+	const { states, distance, withinOne, handshakes, landed } =
+		Route.useLoaderData();
 	const [picked, setPicked] = useState<string>();
 	const router = useRouter();
 	const [thread, setThread] = useState<ThreadItem[]>([]);
@@ -223,7 +224,7 @@ function FrontDoor() {
 				<p className="th-hops-line">
 					{handshakes === 0
 						? "Every introduction is 2 hops: you, an organization, a person there."
-						: `${handshakes} recorded ${handshakes === 1 ? "handshake" : "handshakes"}, 2 hops each: you, an organization, a person there.`}
+						: `${handshakes} recorded ${handshakes === 1 ? "handshake" : "handshakes"}, 2 hops each: you, an organization, a person there.${landed ? ` ${landed} confirmed ${landed === 1 ? "meeting" : "meetings"}.` : ""}`}
 				</p>
 			</header>
 

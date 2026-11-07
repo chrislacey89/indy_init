@@ -1,7 +1,9 @@
 import { env } from "cloudflare:workers";
 import { createServerFn } from "@tanstack/react-start";
+import { createD1FollowUpRepo } from "#/db/followUpRepo";
 import { createD1IntroductionRepo } from "#/db/introductionRepo";
 import { isIndianaCounty } from "#/domain/counties";
+import { isLanded } from "#/domain/followUp";
 import { requestHelp } from "#/domain/frontDoor";
 import { isHelpType, replyText } from "#/domain/help";
 import {
@@ -41,6 +43,8 @@ export const getMapData = createServerFn({ method: "GET" }).handler(
 			distance,
 			withinOne: withinOne(distance),
 			handshakes: made.length,
+			landed: (await createD1FollowUpRepo(env.DB).list()).filter(isLanded)
+				.length,
 		};
 	},
 );
