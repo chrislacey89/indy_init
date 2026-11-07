@@ -33,11 +33,12 @@ A rung is done when Ryan accepts it on the live URL against its done-condition.
 | 1    | Record one introduction; 92-county map colored by count                                                     | Ryan submits from his phone and the county changes on the laptop         | Posting an intro increments only its county; all 92 counties render at zero                   |         |
 | 2    | Front door: need + county in a text-thread page; lookup routes same county, then adjacent; saved as pending | Ryan tries three counties, including one with nothing listed             | Every one of the 92 counties resolves to an organization                                      |         |
 | 3    | Approve tap: AI drafts the intro, a human edits and approves; pending becomes made                          | Ryan edits one line, approves, and the county turns from pending to made | No intro reaches made without an approval record; every draft stores model and prompt version |         |
+| 3.5  | Langfuse traces: every AI draft (prompt, model, output) traced; Ryan's edit or approval logged as a score | Ryan opens Langfuse, finds the trace for a draft he edited, and sees his correction as a score | Every draft call emits one trace with model and prompt version; an approval writes a score to that trace | ~       |
 | 4    | The number: landed / cold states; introductions, hops, counties from help, per county                       | Ryan checks the numbers by hand against the demo data                    | Founder to org to person is 2 hops; county totals equal the sum of the record                 |         |
 | 5    | Who should meet this founder: ranked shortlist with reasons                                                 | Ryan explains three shortlists without asking Chris                      | Never lists a node without an approved intro                                                  | ~       |
 | 6    | Passport stamps per landed intro                                                                            | Ryan earns two stamps on his phone                                       | A stamp exists only for a landed intro                                                        | ~       |
 
-**Cut order:** 6, then 5, then map geometry to a 92-cell grid, then AI need classification to a dropdown, then outcome states to pending/made.
+**Cut order:** 6, then 5, then 3.5 (Langfuse), then map geometry to a 92-cell grid, then AI need classification to a dropdown, then outcome states to pending/made.
 **Never cut:** the record, the map, the approve tap, the live deploy.
 
 ## Ticked rungs
