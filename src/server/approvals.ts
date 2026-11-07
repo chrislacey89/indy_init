@@ -1,7 +1,12 @@
 import { env } from "cloudflare:workers";
 import { createServerFn } from "@tanstack/react-start";
-import { getCookie, setCookie } from "@tanstack/react-start/server";
+import {
+	deleteCookie,
+	getCookie,
+	setCookie,
+} from "@tanstack/react-start/server";
 import { createD1IntroductionRepo } from "#/db/introductionRepo";
+import { canHandle, type Scope } from "#/domain/access";
 import { replyText } from "#/domain/help";
 import {
 	approvedText,
@@ -19,8 +24,33 @@ import { DRAFT_MODEL, draftWithOpenAi } from "./aiDraft";
 const ORGS = loadOrgs();
 const ORG_BY_ID = new Map(ORGS.map((o) => [o.id, o]));
 const COOKIE = "th_approve";
-/** In the demo, Ryan stands in for every org. Real org accounts come after the hackathon. */
-const DEMO_APPROVER = "Ryan";
+
+type Account = {
+	id: string;
+	/** Stored as the approver on every approval this account makes. */
+	name: string;
+	secret: () => string | undefined;
+	scope: Scope;
+};
+
+/**
+ * Demo accounts. The super admin sees every org's requests (demo only); Ryan is bound to one org,
+ * the way a real org account would be. Real org sign-in comes after the hackathon.
+ */
+const ACCOUNTS: Account[] = [
+	{
+		id: "admin",
+		name: "Demo super admin",
+		secret: () => env.APPROVE_PASSCODE,
+		scope: { kind: "all" },
+	},
+	{
+		id: "ryan",
+		name: "Ryan",
+		secret: () => env.RYAN_PASSCODE,
+		scope: { kind: "org", orgId: "elevate-ventures" },
+	},
+];
 
 function repo() {
 	return createD1IntroductionRepo(env.DB);
@@ -30,22 +60,45 @@ function log(event: string, fields: Record<string, unknown>) {
 	console.log(JSON.stringify({ event, ...fields }));
 }
 
-async function passHash(passcode: string): Promise<string> {
-	const bytes = new TextEncoder().encode(`two-hops-approve:${passcode}`);
+async function sessionHash(account: Account, secret: string) {
+	const bytes = new TextEncoder().encode(
+		`two-hops-approve:${account.id}:${secret}`,
+	);
 	const digest = await crypto.subtle.digest("SHA-256", bytes);
 	return [...new Uint8Array(digest)]
 		.map((b) => b.toString(16).padStart(2, "0"))
 		.join("");
 }
 
-async function isUnlocked(): Promise<boolean> {
-	const expected = env.APPROVE_PASSCODE;
-	if (!expected) return false;
-	return getCookie(COOKIE) === (await passHash(expected));
+/** The signed-in account, from the HttpOnly cookie (account id + hash, never the passcode). */
+async function currentAccount(): Promise<Account | null> {
+	const [id, hash] = (getCookie(COOKIE) ?? "").split(".");
+	const account = ACCOUNTS.find((a) => a.id === id);
+	const secret = account?.secret();
+	if (!account || !secret || !hash) return null;
+	return hash === (await sessionHash(account, secret)) ? account : null;
 }
 
-async function requireUnlocked() {
-	if (!(await isUnlocked())) throw new Error("Enter the demo passcode first.");
+async function requireAccount(): Promise<Account> {
+	const account = await currentAccount();
+	if (!account) throw new Error("Enter your passcode first.");
+	return account;
+}
+
+/** Every /approve action checks the request is routed to an org this account handles. */
+async function requireHandles(account: Account, introId: number) {
+	const intro = await repo().getById(introId);
+	if (!intro || !canHandle(account.scope, intro))
+		throw new Error("That request belongs to another organization.");
+	return intro;
+}
+
+function viewerOf(account: Account) {
+	const org =
+		account.scope.kind === "org"
+			? (ORG_BY_ID.get(account.scope.orgId)?.name ?? account.scope.orgId)
+			: null;
+	return { name: account.name, org };
 }
 
 function describe(intro: Introduction) {
@@ -65,26 +118,41 @@ export const unlockApprove = createServerFn({ method: "POST" })
 		passcode: String(data?.passcode ?? ""),
 	}))
 	.handler(async ({ data }) => {
-		const expected = env.APPROVE_PASSCODE;
-		if (!expected || data.passcode !== expected) {
+		const account = ACCOUNTS.find((a) => {
+			const secret = a.secret();
+			return !!secret && data.passcode === secret;
+		});
+		if (!account) {
 			log("approve_unlock_failed", {});
 			throw new Error("That passcode didn't match.");
 		}
-		setCookie(COOKIE, await passHash(expected), {
+		const secret = account.secret() ?? "";
+		setCookie(COOKIE, `${account.id}.${await sessionHash(account, secret)}`, {
 			httpOnly: true,
 			secure: true,
 			sameSite: "strict",
 			path: "/",
 			maxAge: 60 * 60 * 24 * 7,
 		});
+		log("approve_signed_in", { account: account.id });
 		return { ok: true as const };
 	});
 
+export const signOutApprove = createServerFn({ method: "POST" }).handler(
+	async () => {
+		deleteCookie(COOKIE, { path: "/" });
+		return { ok: true as const };
+	},
+);
+
 export const getApproveQueue = createServerFn({ method: "GET" }).handler(
 	async () => {
-		if (!(await isUnlocked())) return { unlocked: false as const, items: [] };
+		const account = await currentAccount();
+		if (!account) return { unlocked: false as const, viewer: null, items: [] };
 		const r = repo();
-		const pending = await r.listPending();
+		const pending = (await r.listPending()).filter((i) =>
+			canHandle(account.scope, i),
+		);
 		const items = await Promise.all(
 			pending.map(async (intro) => {
 				const draft = currentDraft(await r.listDrafts(intro.id));
@@ -106,7 +174,7 @@ export const getApproveQueue = createServerFn({ method: "GET" }).handler(
 				};
 			}),
 		);
-		return { unlocked: true as const, items };
+		return { unlocked: true as const, viewer: viewerOf(account), items };
 	},
 );
 
@@ -162,7 +230,7 @@ const idInput = (data: { introId: number }) => {
 export const draftIntro = createServerFn({ method: "POST" })
 	.validator(idInput)
 	.handler(async ({ data }) => {
-		await requireUnlocked();
+		await requireHandles(await requireAccount(), data.introId);
 		return toClient(await draftFor(data.introId));
 	});
 
@@ -172,7 +240,7 @@ export const redraftIntro = createServerFn({ method: "POST" })
 		draftId: Number(data?.draftId),
 	}))
 	.handler(async ({ data }) => {
-		await requireUnlocked();
+		await requireHandles(await requireAccount(), data.introId);
 		await rejectDraft(repo(), data);
 		log("draft_rejected", { intro: data.introId, draft: data.draftId });
 		return toClient(await draftFor(data.introId));
@@ -185,16 +253,18 @@ export const approveIntro = createServerFn({ method: "POST" })
 		text: String(data?.text ?? "").slice(0, 2000),
 	}))
 	.handler(async ({ data }) => {
-		await requireUnlocked();
+		const account = await requireAccount();
+		await requireHandles(account, data.introId);
 		await approveIntroduction(repo(), {
 			introId: data.introId,
 			draftId: data.draftId,
 			finalText: data.text,
-			approver: DEMO_APPROVER,
+			approver: account.name,
 		});
 		const intro = await repo().getById(data.introId);
 		log("intro_approved", {
 			intro: data.introId,
+			account: account.id,
 			draft: data.draftId,
 			county: intro?.founderCounty,
 			state: intro?.state,

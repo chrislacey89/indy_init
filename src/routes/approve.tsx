@@ -5,6 +5,7 @@ import {
 	draftIntro,
 	getApproveQueue,
 	redraftIntro,
+	signOutApprove,
 	unlockApprove,
 } from "#/server/approvals";
 
@@ -16,11 +17,17 @@ export const Route = createFileRoute("/approve")({
 type Queue = Awaited<ReturnType<typeof getApproveQueue>>;
 type Item = Queue["items"][number];
 type Draft = NonNullable<Item["draft"]>;
+type Viewer = NonNullable<Queue["viewer"]>;
 
 function ApprovePage() {
 	const queue = Route.useLoaderData();
 	if (!queue.unlocked) return <Unlock />;
-	return <QueueView items={queue.items} />;
+	return (
+		<QueueView
+			items={queue.items}
+			viewer={queue.viewer ?? { name: "", org: null }}
+		/>
+	);
 }
 
 function Unlock() {
@@ -42,7 +49,7 @@ function Unlock() {
 			<header className="th-head">
 				<p className="th-kicker">Two Hops · Approve</p>
 				<h1 className="th-title">Approve introductions</h1>
-				<p className="th-lede">Enter the demo passcode once on this device.</p>
+				<p className="th-lede">Enter your passcode once on this device.</p>
 			</header>
 			<form className="th-compose th-unlock" onSubmit={onSubmit}>
 				<label>
@@ -65,12 +72,27 @@ function Unlock() {
 	);
 }
 
-function QueueView({ items }: { items: Item[] }) {
+function QueueView({ items, viewer }: { items: Item[]; viewer: Viewer }) {
+	const router = useRouter();
+	async function signOut() {
+		await signOutApprove();
+		await router.invalidate();
+	}
 	return (
 		<main className="th-page">
 			<header className="th-head">
 				<p className="th-kicker">Two Hops · Approve</p>
-				<h1 className="th-title">Waiting on a person</h1>
+				<h1 className="th-title">
+					{viewer.org ? `Waiting on ${viewer.org}` : "Waiting on a person"}
+				</h1>
+				<p className="th-signed-in">
+					{viewer.org
+						? `Signed in as ${viewer.name} for ${viewer.org}. You see only requests routed to ${viewer.org}.`
+						: `Signed in as ${viewer.name}: every org's requests, for the demo only.`}{" "}
+					<button type="button" className="th-link" onClick={signOut}>
+						Sign out
+					</button>
+				</p>
 				<p className="th-lede">
 					{items.length === 0
 						? "Nothing is waiting. New requests show up here, newest first."
@@ -79,14 +101,14 @@ function QueueView({ items }: { items: Item[] }) {
 			</header>
 			<div className="th-queue">
 				{items.map((item) => (
-					<Card key={item.id} item={item} />
+					<Card key={item.id} item={item} viewer={viewer} />
 				))}
 			</div>
 		</main>
 	);
 }
 
-function Card({ item }: { item: Item }) {
+function Card({ item, viewer }: { item: Item; viewer: Viewer }) {
 	const router = useRouter();
 	const [draft, setDraft] = useState<Draft | null>(item.draft);
 	const [text, setText] = useState(item.draft?.text ?? "");
@@ -137,8 +159,9 @@ function Card({ item }: { item: Item }) {
 	return (
 		<article className="th-card">
 			<p className="th-banner">
-				Demo: Ryan is approving on behalf of <b>{item.org.name}</b>.
-				Approximately half of listings do not have an owner yet.
+				Demo: {viewer.org ? viewer.name : "the super admin"} is approving on
+				behalf of <b>{item.org.name}</b>. Approximately half of listings do not
+				have an owner yet.
 			</p>
 			<p className="th-card-ask">
 				<b>{item.founder}</b> in {item.county} County needs{" "}

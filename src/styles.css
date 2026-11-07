@@ -955,3 +955,17 @@ body:has(.th-page) {
 		animation: none;
 	}
 }
+.th-signed-in {
+	margin: 6px 0 0;
+	color: var(--th-muted);
+	font-size: 14px;
+}
+.th-link {
+	background: none !important;
+	border: 0 !important;
+	padding: 0 !important;
+	color: var(--th-gold) !important;
+	text-decoration: underline;
+	cursor: pointer;
+	font: inherit;
+}
