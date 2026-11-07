@@ -63,7 +63,7 @@ _(Ryan ticks each rung here when he accepts it.)_
 
 - [x] Rung 3.5 (Langfuse), accepted by Ryan 13:36.
 
-- [ ] **Rung 7 (follow-up), ready for Ryan once his email is set (deployed 13:44).** On a founder conversation page with an approved intro (yours from Elevate Ventures), tap **We're meeting**. About 2 minutes later, the approver's inbox (yours, once Chris sets `RYAN_EMAIL`; check Spam) gets "Did you meet with <founder>?". Tap **Answer the follow-up**, add a note, and tap **Yes, we met**. Done when the founder's page reads "Landed: Elevate Ventures confirmed you met." and the front page counts a confirmed meeting. Answering twice is refused.
+- [x] Rung 7 (follow-up), accepted by Ryan 13:59 (reported in person to Chris; his agent may add detail).
 
 ## Devpost: don't forget
 
