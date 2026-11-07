@@ -48,6 +48,7 @@ _(Ryan ticks each rung here when he accepts it.)_
 
 - [x] Rung 0, accepted by Ryan 10:15 on the live URL.
 - [x] Rung 1, accepted by Ryan 10:27 on the live URL.
+- [x] Rung 2, accepted by Ryan 10:51 on the live URL.
 - [ ] **Rung 2: ready for acceptance (built 10:23).** On your phone, open https://two-hops.chrislacey89.workers.dev/ (the home page). Send three requests: one in Marion, one in Allen, and one in Vermillion (no organization listed). Each reply should name an organization and read like a text from a person. Vermillion should say the help is next door. After each send, that county turns blue on the map (waiting on a person). Tick this, or write the gap in one sentence, including if the reply wording is too long.
 
 ## Ryan: what to do next (in order)
