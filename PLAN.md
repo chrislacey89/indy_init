@@ -44,14 +44,51 @@ A rung is done when Ryan accepts it on the live URL against its done-condition.
 
 _(Ryan ticks each rung here when he accepts it.)_
 
+- [x] Rung 0, accepted by Ryan 10:15 on the live URL.
+
 ## Open questions for Ryan (shape in parallel; needed before rung 2)
 
 1. Organizers: may we import the ConnectIND dataset gathered before the event? Does pre-installed tooling count as pre-built code?
+
+   **Ryan:** Yes, we may import the ConnectIND datasets. Pre-installed tooling does not count as pre-built code.
+
 2. Accept rung 0 on the live URL (laptop + phone).
+
+   **Ryan:** Accepted (ticked above).
+
 3. The 202 listings with no county: statewide fallback, or missing data?
+
+   **Ryan:** Statewide fallback. After the dead/unrelated exclusions, 186 remain; they have a blank county in `data/organizations.csv`, which `routeFounder` already treats as statewide.
+
 4. Spotcheck: exclude listings flagged dead/unrelated from routing?
+
+   **Ryan:** Exclude all of them, dead and unrelated alike. Done in `data/organizations.csv` (57 dead, 21 more unrelated; 768 kept). Consequence: 5 counties now have no organization (Fountain, Jennings, Posey, Starke, Vermillion), not 3. Fountain lost Attica Main Street (domain now serves gambling spam), Jennings lost North Vernon Main Street (dead). The pitch number changes to 5.
+
 5. "155 dead websites": source? The org file shows 57.
+
+   **Ryan:** Both are right. 155 is all public listings (organizations + resources, 155/1,792 with a website); 57 is organizations only (57/832). Source: Ryan's 2026-10-05 ConnectIND audit. Routing uses organizations, so 57 is the number that applies.
+
 6. Demo: which 2-3 real orgs and counties star, including one empty county?
+
+   **Ryan:** Marion and Allen star, even if the judge does not live there: "pretend an entrepreneur is looking for resources in Fort Wayne (Allen County)." Vermillion is the no-organization county, used to demo routing to an adjacent county. Pick the featured orgs from live, claimed listings.
+
 7. Front door: the founder's reply wording.
+
+   **Ryan:** A picklist, not free text, keyed to the kind of help requested. ConnectIND's goal is the full menu of support visible to the founder; its own Resource Type tags (19 of them) collapse to six choices, carried per org in `support_types`:
+   - Funding (funding, grants, equity, pitch competitions, incentives)
+   - Mentoring & advising (mentorship, technical assistance, business plans, networking)
+   - Training & classes (educational programs, certifications)
+   - Space to work (space, coworking, makerspace)
+   - Accelerators & incubators
+   - Permits & licensing (permits, procurement, site selection)
+
+   Data note: only 340 of 768 orgs carry any tag, so a choice should rank tagged orgs first, not filter untagged ones out, or most counties match nothing. The reply text per choice is one or two plain sentences, like a text from a person.
+
 8. Rung 3: who plays the receiving org in the demo?
+
+   **Ryan:** Ryan taps approve for the receiving organization, in whatever county the judge enters, and the screen says so. Ownership is the weak link everywhere: even Marion has an owner on 74 of 216 listings, and program listings are weaker still (109 of 964 owned). So the demo shows a person standing in for the org rather than claiming a real one responded.
+
 9. Devpost project + teammate; table number.
+
+   **Ryan:** Teammates Ryan Allison and Chris Lacey. Table 25. The Devpost write-up is held and revisited later; the project itself must exist with both teammates before the 4:45 submit mark.
+
