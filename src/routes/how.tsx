@@ -1,12 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "#/components/ui/card";
+import { Brand } from "#/components/Brand";
 
 export const Route = createFileRoute("/how")({
 	head: () => ({ meta: [{ title: "How we built it · Two Hops" }] }),
@@ -14,6 +8,41 @@ export const Route = createFileRoute("/how")({
 });
 
 const REPO = "https://github.com/chrislacey89/indy_init";
+const THREAD =
+	"https://kody.exchange/t/kx_view_deea2e70b8574bdf5e4475bf5b4453c56fd5ac44640e5396";
+const TRACE =
+	"https://us.cloud.langfuse.com/trace/a47f654f0d4fab35008602af5a36e47b";
+
+/** The peak path: each station is a step in the end-to-end test and a live log event. */
+const STATIONS = [
+	{ step: "Founder asks", event: "help_requested" },
+	{ step: "AI drafts", event: "draft_created" },
+	{ step: "Person approves", event: "intro_approved" },
+	{ step: "Intro emailed", event: "intro_emailed" },
+	{ step: "“We’re meeting”", event: "meeting_agreed" },
+	{ step: "Follow-up", event: "follow_up_sent" },
+	{ step: "Landed", event: "intro_landed" },
+];
+
+/** The day on one axis, 9:25 to the 3:45 freeze. Minutes from 9:25. */
+const DAY_START = 9 * 60 + 25;
+const DAY_END = 15 * 60 + 45;
+const at = (h: number, m: number) =>
+	((h * 60 + m - DAY_START) / (DAY_END - DAY_START)) * 100;
+const RUNGS: { label: string; t: number; note: string; pending?: boolean }[] = [
+	{ label: "0", t: at(10, 15), note: "Repo, CI, live URL" },
+	{ label: "1", t: at(10, 27), note: "Record + map" },
+	{ label: "2", t: at(10, 51), note: "Front door" },
+	{ label: "3", t: at(12, 31), note: "Draft + approve" },
+	{ label: "4", t: at(13, 36), note: "The number, email, Langfuse" },
+	{ label: "7", t: at(13, 59), note: "Follow-up" },
+	{ label: "8·9", t: at(14, 15), note: "E2E in CI, this page", pending: true },
+];
+const CHECKPOINTS = [
+	{ t: at(11, 30), note: "12 min/rung: add rungs" },
+	{ t: at(12, 51), note: "47 min/rung: cut 5 and 6" },
+	{ t: at(13, 59), note: "29 min/rung: add 8 and 9" },
+];
 
 function Ext({ href, children }: { href: string; children: ReactNode }) {
 	return (
@@ -21,32 +50,42 @@ function Ext({ href, children }: { href: string; children: ReactNode }) {
 			href={href}
 			target="_blank"
 			rel="noreferrer"
-			className="font-semibold underline underline-offset-4"
+			className="inline-flex items-center gap-1.5 rounded-full border border-[var(--th-line-dark)] px-3 py-1 text-[13px] font-semibold text-[var(--th-ink)]! no-underline! transition-colors hover:border-[var(--th-gold)] hover:text-[var(--th-gold)]!"
 		>
 			{children}
+			<span aria-hidden="true">↗</span>
 		</a>
 	);
 }
 
-function Section({
+function Tile({
+	n,
 	title,
-	lede,
 	children,
+	links,
+	wide,
 }: {
+	n: string;
 	title: string;
-	lede: string;
 	children: ReactNode;
+	links?: ReactNode;
+	wide?: boolean;
 }) {
 	return (
-		<Card className="max-w-3xl">
-			<CardHeader>
-				<CardTitle>{title}</CardTitle>
-				<CardDescription>{lede}</CardDescription>
-			</CardHeader>
-			<CardContent className="space-y-2 text-sm leading-6">
+		<section
+			className={`flex flex-col gap-3 rounded-2xl border border-[var(--th-line-dark)] bg-[var(--th-bg-deep)] p-6 ${wide ? "md:col-span-2" : ""}`}
+		>
+			<p className="th-kicker m-0">{n}</p>
+			<h2 className="m-0 text-[22px] font-extrabold leading-tight tracking-tight text-[var(--th-ink)]">
+				{title}
+			</h2>
+			<div className="space-y-2 text-[15px] leading-relaxed text-[var(--th-muted)]">
 				{children}
-			</CardContent>
-		</Card>
+			</div>
+			{links && (
+				<div className="mt-auto flex flex-wrap gap-2 pt-2">{links}</div>
+			)}
+		</section>
 	);
 }
 
@@ -55,160 +94,278 @@ function HowWeBuiltIt() {
 	return (
 		<main className="th-page">
 			<header className="th-head">
-				<p className="th-kicker">Two Hops · How we built it</p>
-				<h1 className="th-title">Two humans, two agents, one thread.</h1>
+				<Brand where="How we built it" />
+				<h1 className="th-title">
+					Two humans, two <em>agents</em>, one thread.
+				</h1>
 				<p className="th-lede">
-					Built from an empty repo at Indy Init on November 7, 2026, by Chris
-					Lacey (builds with Claude Code) and Ryan Allison (product owner,
-					writes no code, works through his own agent).
+					Built from an empty repo at Indy Init on November 7, 2026. Chris Lacey
+					builds with Claude Code. Ryan Allison owns the product, writes no
+					code, and works through his own agent. Nothing counted as done until
+					Ryan accepted it on the live site.
 				</p>
+				<div className="th-stats grid! grid-cols-2 gap-5! sm:flex!">
+					<div>
+						<b>42</b>
+						<span>tests, run on every push</span>
+					</div>
+					<div>
+						<b>68</b>
+						<span>decisions logged, with what we rejected</span>
+					</div>
+					<div>
+						<b>31</b>
+						<span>messages between the two agents</span>
+					</div>
+					<div>
+						<b>80+</b>
+						<span>commits since 9:25</span>
+					</div>
+				</div>
 			</header>
 
-			<div className="flex flex-col gap-4">
-				<Section
-					title="1. The shared agent thread"
-					lede="Chris's build agent and Ryan's product agent coordinated in one Kody Exchange thread: questions, answers, pushback and acceptance."
-				>
-					<p>
-						A feature counted as done only when Ryan himself accepted it on the
-						live site. His agent relayed it, but it never decided.
-					</p>
-					<ul className="list-disc space-y-1 pl-5">
-						<li>
-							<Ext href="https://kody.exchange/t/kx_view_deea2e70b8574bdf5e4475bf5b4453c56fd5ac44640e5396">
-								The live thread (read-only)
-							</Ext>
+			{/* The peak path as an assembly line */}
+			<section aria-labelledby="line-title" className="grid gap-5">
+				<div>
+					<p className="th-kicker">The peak path</p>
+					<h2
+						id="line-title"
+						className="m-0 text-[26px] font-extrabold tracking-tight"
+					>
+						Seven stations. Tested in CI, logged live.
+					</h2>
+				</div>
+				<ol className="relative m-0 grid list-none gap-4 p-0 sm:grid-cols-7 sm:gap-2">
+					<span
+						aria-hidden="true"
+						className="absolute left-[11px] top-3 bottom-3 w-[2px] bg-[var(--th-gold)] sm:left-[7%] sm:right-[7%] sm:top-[11px] sm:bottom-auto sm:h-[2px] sm:w-auto"
+					/>
+					{STATIONS.map((s, i) => (
+						<li
+							key={s.event}
+							className="relative flex items-start gap-3 sm:flex-col sm:items-center sm:text-center"
+						>
+							<span
+								className={`relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 border-[var(--th-gold)] text-[11px] font-extrabold ${i === STATIONS.length - 1 ? "bg-[var(--th-gold)] text-[var(--th-ink-dark)]" : "bg-[var(--th-bg)] text-[var(--th-gold)]"}`}
+							>
+								{i + 1}
+							</span>
+							<span className="grid gap-1">
+								<span className="text-[15px] font-bold leading-tight text-[var(--th-ink)]">
+									{s.step}
+								</span>
+								<span className="break-all font-mono text-[11px] text-[var(--th-muted)]">
+									{s.event}
+								</span>
+							</span>
 						</li>
-						<li>
+					))}
+				</ol>
+				<p className="m-0 max-w-[68ch] text-[15px] leading-relaxed text-[var(--th-muted)]">
+					One{" "}
+					<a
+						href={`${REPO}/blob/main/src/e2e/peakPath.test.ts`}
+						target="_blank"
+						rel="noreferrer"
+						className="font-semibold text-[var(--th-ink)]! underline decoration-[var(--th-gold)] underline-offset-4"
+					>
+						end-to-end test
+					</a>{" "}
+					walks every station in order: Marion County, an accelerator, Elevate
+					Ventures, Ryan's approval, a yes on the follow-up. If any station
+					breaks, CI goes red. An intro counts as landed only on a recorded yes.
+				</p>
+			</section>
+
+			{/* The day on one axis */}
+			<section aria-labelledby="day-title" className="grid gap-5">
+				<div>
+					<p className="th-kicker">The day</p>
+					<h2
+						id="day-title"
+						className="m-0 text-[26px] font-extrabold tracking-tight"
+					>
+						Re-planned from measured pace, not guesses.
+					</h2>
+				</div>
+				<div className="overflow-x-auto rounded-2xl border border-[var(--th-line-dark)] bg-[var(--th-bg-deep)] px-5 pt-14 pb-6 sm:px-8">
+					<div className="relative mx-2 h-[2px] min-w-[600px] bg-[var(--th-line-dark)]">
+						{RUNGS.map((r) => (
+							<div
+								key={r.label}
+								className="absolute -translate-x-1/2"
+								style={{ left: `${r.t}%`, top: -11 }}
+								title={r.note}
+							>
+								<span
+									className={`grid h-6 min-w-6 place-items-center rounded-full px-1 text-[11px] font-extrabold ${r.pending ? "border-2 border-[var(--th-gold)] bg-[var(--th-bg-deep)] text-[var(--th-gold)]" : "bg-[var(--th-gold)] text-[var(--th-ink-dark)]"}`}
+								>
+									{r.label}
+								</span>
+							</div>
+						))}
+						{CHECKPOINTS.map((c) => (
+							<div
+								key={c.t}
+								className="absolute -translate-x-1/2"
+								style={{ left: `${c.t}%`, top: 18 }}
+								title={c.note}
+							>
+								<span className="block h-3 w-3 rotate-45 border-2 border-[var(--th-ink)] bg-[var(--th-bg-deep)]" />
+							</div>
+						))}
+						<span className="absolute -top-9 left-0 font-mono text-[11px] text-[var(--th-muted)]">
+							9:25 start
+						</span>
+						<span className="absolute -top-9 right-0 font-mono text-[11px] text-[var(--th-gold)]">
+							3:45 freeze
+						</span>
+					</div>
+					<div className="mt-10 flex min-w-[600px] flex-wrap gap-x-6 gap-y-2 text-[13px] text-[var(--th-muted)]">
+						<span className="inline-flex items-center gap-2">
+							<span className="h-3 w-3 rounded-full bg-[var(--th-gold)]" />
+							Rung accepted by Ryan
+						</span>
+						<span className="inline-flex items-center gap-2">
+							<span className="h-3 w-3 rounded-full border-2 border-[var(--th-gold)]" />
+							Built, waiting on Ryan
+						</span>
+						<span className="inline-flex items-center gap-2">
+							<span className="h-2.5 w-2.5 rotate-45 border-2 border-[var(--th-ink)]" />
+							Checkpoint: measure minutes per rung, re-plan
+						</span>
+					</div>
+				</div>
+				<ul className="m-0 grid list-none gap-2 p-0 text-[14px] text-[var(--th-muted)] sm:grid-cols-3">
+					{CHECKPOINTS.map((c, i) => (
+						<li
+							key={c.t}
+							className="border-l-[3px] border-[var(--th-ink)] pl-3"
+						>
+							<b className="text-[var(--th-ink)]">Checkpoint {i + 1}.</b>{" "}
+							{c.note}
+						</li>
+					))}
+				</ul>
+			</section>
+
+			{/* The evidence */}
+			<section aria-label="The evidence" className="grid gap-4 md:grid-cols-2">
+				<Tile
+					n="01 · The thread"
+					title="Two agents, one shared thread"
+					links={
+						<>
+							<Ext href={THREAD}>Live thread</Ext>
 							<Ext href={`${REPO}/blob/main/docs/alignment-log.md`}>
-								The thread exported to the repo
+								Exported log
 							</Ext>
+						</>
+					}
+				>
+					<p>
+						Chris's build agent and Ryan's product agent worked through
+						questions, answers, pushback and acceptance in one Kody Exchange
+						thread. Ryan's agent relayed his calls but never made them.
+					</p>
+				</Tile>
+
+				<Tile
+					n="02 · Decisions"
+					title="Decisions before code"
+					links={
+						<>
+							<Ext href={`${REPO}/blob/main/DECISIONS.md`}>DECISIONS.md</Ext>
+							<Ext href={`${REPO}/blob/main/PLAN.md`}>PLAN.md</Ext>
+						</>
+					}
+				>
+					<p>
+						Every call is tagged Product or Technical. Product calls needed a
+						yes from Ryan or Chris before anything was built. The rule exists
+						because the AI made product calls on its own early in the day.
+					</p>
+				</Tile>
+
+				<Tile
+					n="03 · Gates"
+					title="Tests and gates on every change"
+					links={
+						<>
+							<Ext href={`${REPO}/actions`}>GitHub Actions</Ext>
+							<Ext href={`${REPO}/blob/main/lefthook.yml`}>Commit gates</Ext>
+						</>
+					}
+				>
+					<p>
+						CI runs lint, typecheck, tests and a gitleaks secret scan on every
+						push. Each commit runs the same checks, and each push audits
+						dependencies. The audit blocked our pushes twice today. Agent hooks
+						block code written without tests.
+					</p>
+				</Tile>
+
+				<Tile n="04 · Security" title="Trust boundaries, built in">
+					<ul className="m-0 list-disc space-y-1 pl-5">
+						<li>
+							Turnstile plus 20 requests a minute per IP at the front door.
 						</li>
+						<li>
+							Each organization sees only its own requests. The server checks
+							this on every approve action.
+						</li>
+						<li>
+							A founder's contact details are shown only to the approving
+							organization.
+						</li>
+						<li>Secrets live only in Worker secrets.</li>
 					</ul>
-				</Section>
+				</Tile>
 
-				<Section
-					title="2. A ladder, re-planned from measured pace"
-					lede="We planned the day as rungs. Each one could be demoed on its own and had a written done-condition and a test that proves it."
-				>
-					<p>
-						Every 90 minutes we measured our actual minutes per accepted rung
-						and re-planned the rest of the ladder from that number, not from a
-						guess. We cut two rungs at 12:45 and added two at 1:59. The freeze
-						never moved.
-					</p>
-					<p>
-						<Ext href={`${REPO}/blob/main/PLAN.md`}>PLAN.md</Ext>: the ladder,
-						the checkpoints, and the rungs Ryan ticked.
-					</p>
-				</Section>
-
-				<Section
-					title="3. Decisions before code"
-					lede="Every call is logged with what we rejected and why. Product calls needed a yes from Ryan or Chris before anything was built."
-				>
-					<p>
-						<Ext href={`${REPO}/blob/main/DECISIONS.md`}>DECISIONS.md</Ext> tags
-						each row Product or Technical. The rule exists because the AI made
-						product calls without asking early on. We caught it and wrote the
-						rule down.
-					</p>
-				</Section>
-
-				<Section
-					title="4. Tests and CI on every push"
-					lede="The domain rules are pure functions, each next to its tests. One end-to-end test walks the whole peak path."
-				>
-					<p>
-						<Ext href={`${REPO}/blob/main/src/e2e/peakPath.test.ts`}>
-							The peak-path test
-						</Ext>{" "}
-						checks every step in order: a founder in Marion asks for an
-						accelerator and is routed to Elevate Ventures. The AI drafts an
-						intro. Ryan approves it and the county turns from waiting to made.
-						The founder taps "We're meeting." The follow-up goes out once.
-						Elevate answers yes, and only then does the intro count as landed.
-						If any step breaks, CI goes red.
-					</p>
-					<p>
-						<Ext href={`${REPO}/actions`}>GitHub Actions</Ext> runs lint,
-						typecheck, the tests and a gitleaks secret scan on every push.
-					</p>
-					<p>
-						<Ext href={`${REPO}/blob/main/lefthook.yml`}>Commit gates</Ext>:
-						every commit runs Biome, typecheck, the tests and a secret scan.
-						Every push runs a dependency audit. The audit blocked our pushes
-						twice today, once forcing two dependency overrides and once catching
-						a UI tool's transitive dependencies. Agent hooks block code written
-						without tests and destructive git commands.
-					</p>
-				</Section>
-
-				<Section
-					title="5. Security and trust boundaries"
-					lede="Built in at Ryan's request, not added for the demo."
-				>
-					<ul className="list-disc space-y-1 pl-5">
-						<li>
-							The front door is protected by Cloudflare Turnstile plus a limit
-							of 20 requests a minute per IP address.
-						</li>
-						<li>
-							Each organization has its own passcode and sees only the requests
-							routed to it. The server checks this on every approve action, not
-							just when the page loads.
-						</li>
-						<li>
-							The founder's contact details are shown only to the approving
-							organization, never on the map or in public.
-						</li>
-						<li>
-							Secrets live only in Worker secrets, and the repo is scanned for
-							them on every commit and push.
-						</li>
-					</ul>
-				</Section>
-
-				<Section
-					title="6. AI you can audit"
-					lede="The AI drafts. A person approves. The record shows both."
+				<Tile
+					n="05 · AI you can audit"
+					title="The AI drafts. A person approves. The record shows both."
+					wide
+					links={<Ext href={TRACE}>Sample Langfuse trace</Ext>}
 				>
 					<p>
 						Every draft stores the AI's original text, the person's edit, the
-						model and the prompt version. Each draft is a Langfuse trace, and
-						Ryan's approvals and edits are scores on that trace, so you can see
-						where the AI needed correcting.
+						model and the prompt version. Each draft is a Langfuse trace with
+						the prompt, the output, tokens and cost, and Ryan's approvals and
+						edits are scores on that trace. The AI never sends, routes or
+						changes a record.
 					</p>
-					<p>
-						<Ext href="https://us.cloud.langfuse.com/trace/a47f654f0d4fab35008602af5a36e47b">
-							A sample trace
-						</Ext>
-					</p>
-					<p>
-						Every step of the path also writes a structured log event that we
-						can watch live: help_requested, draft_created, intro_approved,
-						intro_emailed, meeting_agreed, follow_up_sent and intro_landed.
-					</p>
-				</Section>
+				</Tile>
+			</section>
 
-				<Section
-					title="7. Where the AI needed correcting"
-					lede="All of it is in the decision log and the thread."
+			{/* Where the AI needed correcting */}
+			<section
+				aria-labelledby="fix-title"
+				className="rounded-2xl border-2 border-[var(--th-gold)] p-6 sm:p-8"
+			>
+				<p className="th-kicker">06 · Honest about the AI</p>
+				<h2
+					id="fix-title"
+					className="m-0 mb-4 text-[26px] font-extrabold tracking-tight"
 				>
-					<ul className="list-disc space-y-1 pl-5">
-						<li>It made product calls without asking, so we added the rule.</li>
-						<li>It started rung 2 before Ryan had accepted rung 1.</li>
-						<li>
-							It said Effect couldn't reach Gemini natively. Chris pushed back,
-							and a compatible route turned up.
+					Where the AI needed correcting
+				</h2>
+				<ol className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2">
+					{[
+						"It made product calls without asking. We added the Product/Technical rule.",
+						"It started rung 2 before Ryan had accepted rung 1.",
+						"It said Effect couldn't reach Gemini natively. Chris pushed back, and a compatible route turned up.",
+						"The Gemini key ran out of credits. A one-minute spike moved us to OpenAI.",
+					].map((t, i) => (
+						<li key={t} className="flex gap-3 text-[15px] leading-relaxed">
+							<span className="w-6 shrink-0 font-mono text-[13px] font-bold text-[var(--th-gold)]">
+								{String(i + 1).padStart(2, "0")}
+							</span>
+							<span className="text-[var(--th-muted)]">{t}</span>
 						</li>
-						<li>
-							When the Gemini key ran out of credits, a one-minute spike moved
-							us to OpenAI.
-						</li>
-					</ul>
-				</Section>
-			</div>
+					))}
+				</ol>
+			</section>
 		</main>
 	);
 }
