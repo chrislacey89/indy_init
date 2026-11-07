@@ -16,6 +16,7 @@ export function createD1IntroductionRepo(d1: D1Database): IntroductionRepo {
 					needType: introductions.needType,
 					fromNode: introductions.fromNode,
 					toNode: introductions.toNode,
+					state: introductions.state,
 				})
 				.from(introductions);
 		},

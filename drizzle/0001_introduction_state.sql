@@ -1,0 +1,1 @@
+ALTER TABLE `introductions` ADD `state` text DEFAULT 'made' NOT NULL;

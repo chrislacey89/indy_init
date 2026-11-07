@@ -9,4 +9,7 @@ export const introductions = sqliteTable("introductions", {
 	needType: text("need_type").notNull(),
 	fromNode: text("from_node").notNull(),
 	toNode: text("to_node").notNull(),
+	state: text("state", { enum: ["pending", "made"] })
+		.notNull()
+		.default("made"),
 });

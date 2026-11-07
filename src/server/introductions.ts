@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createD1IntroductionRepo } from "#/db/introductionRepo";
 import {
 	countyCounts,
-	type Introduction,
+	type NewIntroduction,
 	recordIntroduction,
 } from "#/domain/introductions";
 
@@ -16,7 +16,7 @@ export const getCountyCounts = createServerFn({ method: "GET" }).handler(
 );
 
 export const addIntroduction = createServerFn({ method: "POST" })
-	.validator((data: Introduction) => {
+	.validator((data: NewIntroduction) => {
 		for (const key of [
 			"founderCounty",
 			"needType",
