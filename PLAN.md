@@ -37,6 +37,7 @@ A rung is done when Ryan accepts it on the live URL against its done-condition.
 | 4    | The number: landed / cold states; introductions, hops, counties from help, per county                       | Ryan checks the numbers by hand against the demo data                    | Founder to org to person is 2 hops; county totals equal the sum of the record                 |         |
 | 5    | Who should meet this founder: ranked shortlist with reasons                                                 | Ryan explains three shortlists without asking Chris                      | Never lists a node without an approved intro                                                  | ~       |
 | 6    | Passport stamps per landed intro                                                                            | Ryan earns two stamps on his phone                                       | A stamp exists only for a landed intro                                                        | ~       |
+| 7    | Did-it-happen follow-up: after a set time, only if founder and ESO agreed to meet, the ESO rep gets an email (SMS later) asking yes/no and a short what-came-of-it text box; the answer marks landed | Ryan answers a follow-up from his phone and the intro turns landed | No intro becomes landed without a recorded yes | ~       |
 
 **Cut order:** 6, then 5, then 3.5 (Langfuse), then map geometry to a 92-cell grid, then AI need classification to a dropdown, then outcome states to pending/made.
 **Never cut:** the record, the map, the approve tap, the live deploy.
