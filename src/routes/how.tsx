@@ -19,7 +19,7 @@ const STATIONS = [
 	{ step: "AI drafts", event: "draft_created" },
 	{ step: "Person approves", event: "intro_approved" },
 	{ step: "Intro emailed", event: "intro_emailed" },
-	{ step: "“We’re meeting”", event: "meeting_agreed" },
+	{ step: "“Yes, let’s meet”", event: "meeting_agreed" },
 	{ step: "Follow-up", event: "follow_up_sent" },
 	{ step: "Landed", event: "intro_landed" },
 ];

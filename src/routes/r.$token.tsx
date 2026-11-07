@@ -26,6 +26,7 @@ function ThreadPage() {
 		(!!thread?.followUp && !thread.followUp.answer);
 	const { token } = Route.useParams();
 	const [arming, setArming] = useState(false);
+	const [notYet, setNotYet] = useState(false);
 	async function meeting() {
 		setArming(true);
 		try {
@@ -126,13 +127,26 @@ function ThreadPage() {
 					)}
 					{thread.intro && !thread.followUp && (
 						<div className="flex flex-col items-start gap-2">
-							<p className="text-sm text-muted-foreground">
-								Did you and {thread.org.name} agree to meet? Tell us, and we'll
-								check in with them afterward to see how it went.
+							<p className="text-sm text-muted-foreground" role="status">
+								{notYet
+									? "No problem. This page stays here, so you can say yes whenever you're ready."
+									: `Would you like to meet with ${thread.org.name}? If you say yes, we'll check in with them afterward to see how it went.`}
 							</p>
-							<Button type="button" onClick={meeting} disabled={arming}>
-								{arming ? "Saving…" : "We're meeting"}
-							</Button>
+							<div className="flex flex-wrap gap-2">
+								<Button type="button" onClick={meeting} disabled={arming}>
+									{arming ? "Saving…" : "Yes, let's meet"}
+								</Button>
+								{!notYet && (
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() => setNotYet(true)}
+										disabled={arming}
+									>
+										Not yet
+									</Button>
+								)}
+							</div>
 						</div>
 					)}
 					{thread.followUp && (
