@@ -49,6 +49,22 @@ _(Ryan ticks each rung here when he accepts it.)_
 - [ ] **Rung 1: ready for acceptance (built 09:37).** On your phone, open https://two-hops.chrislacey89.workers.dev/record (the form moved here when rung 2 took over the home page). Record one introduction: pick a county, fill in "Introduced by" and "Introduced to", tap "Record the handshake". Then on a laptop, open the same /record page and refresh: that county should be gold and the counts should go up by one. Also check the map is readable at phone width. Tick this, or write the gap in one sentence.
 - [ ] **Rung 2: ready for acceptance (built 10:23).** On your phone, open https://two-hops.chrislacey89.workers.dev/ (the home page). Send three requests: one in Marion, one in Allen, and one in Vermillion (no organization listed). Each reply should name an organization and read like a text from a person. Vermillion should say the help is next door. After each send, that county turns blue on the map (waiting on a person). Tick this, or write the gap in one sentence, including if the reply wording is too long.
 
+## Ryan: what to do next (in order)
+
+1. **Accept rung 2 (about 5 min).** Follow the rung 2 line under Ticked rungs: three requests from your phone (Marion, Allen, Vermillion). Tick it, or write the gap in one sentence.
+2. **Confirm or overrule three product calls Chris's agent made without you (about 2 min):**
+   - (a) Front-door reply wording. It runs about three sentences now; you asked for one or two. Write the version you want, or say "shorten it."
+   - (b) Map colors: blue = waiting on a person (pending), gold = introduction made.
+   - (c) Ranking inside a county: orgs tagged with the requested help first, then claimed listings, then the rest.
+3. **Shape rung 3, the peak moment (about 10 min).** Answer under each question below. Rung 3 code waits on these.
+   1. What does the AI-drafted intro say? Who is it from, how long is it, and does it name the founder's need?
+   2. What does your approve screen show: a list of pending requests, or one at a time?
+   3. What happens to a draft you edit, and one you reject?
+   4. What counts as "landed" for rung 4, and who marks it?
+   5. How does the screen say you're standing in for the org?
+4. **At 11:15, call checkpoint 1 out loud.** Chris re-plans the rest of the ladder from measured pace.
+5. **Later, before 4:45:** create the Devpost project with both teammates (table 25).
+
 ## Open questions for Ryan (shape in parallel; needed before rung 2)
 
 1. Organizers: may we import the ConnectIND dataset gathered before the event? Does pre-installed tooling count as pre-built code?
