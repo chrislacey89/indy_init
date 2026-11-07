@@ -63,6 +63,11 @@ _(Ryan ticks each rung here when he accepts it.)_
 
 - [x] Rung 3.5 (Langfuse), accepted by Ryan 13:36.
 
+## Devpost: don't forget
+
+- [ ] **Ryan has feedback for the Devpost write-up.** Get it from him before submitting, and fold it in.
+- [ ] Project created with both teammates (Ryan Allison, Chris Lacey), table 25, before 4:45.
+
 ## Ryan: what to do next (in order)
 
 1. ~~**Accept rung 2 (about 5 min).**~~ Done 10:51. Follow the rung 2 line under Ticked rungs: three requests from your phone (Marion, Allen, Vermillion). Tick it, or write the gap in one sentence.
