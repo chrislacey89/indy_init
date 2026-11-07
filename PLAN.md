@@ -43,3 +43,15 @@ A rung is done when Ryan accepts it on the live URL against its done-condition.
 ## Ticked rungs
 
 _(Ryan ticks each rung here when he accepts it.)_
+
+## Open questions for Ryan (shape in parallel; needed before rung 2)
+
+1. Organizers: may we import the ConnectIND dataset gathered before the event? Does pre-installed tooling count as pre-built code?
+2. Accept rung 0 on the live URL (laptop + phone).
+3. The 202 listings with no county: statewide fallback, or missing data?
+4. Spotcheck: exclude listings flagged dead/unrelated from routing?
+5. "155 dead websites": source? The org file shows 57.
+6. Demo: which 2-3 real orgs and counties star, including one empty county?
+7. Front door: the founder's reply wording.
+8. Rung 3: who plays the receiving org in the demo?
+9. Devpost project + teammate; table number.
